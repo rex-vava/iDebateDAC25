@@ -47,13 +47,13 @@ export const categories: Category[] = [
     icon: '👨‍🏫',
     description: 'Known for creating winning teams and impacting students',
     nominees: [
-      'Brenna',
-      'Shamila',
+      'Brenna AKARABO',
+      'Shamila KAREMA',
       'Emma Victor',
-      'Ruth',
-      'Lucas',
-      'Bonfils',
-      'Joana'
+      'Ruth JURU',
+      'Lucas SHEMA',
+      'Bonfils RUKUNDO',
+      'Joana BYUMVUHORE'
     ]
   },
   {
