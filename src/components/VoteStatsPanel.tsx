@@ -1,7 +1,7 @@
 import React from 'react';
 import { BarChart3, TrendingUp, Award, Users, Download } from 'lucide-react';
 import { useVoting } from '../hooks/useVoting';
-import { categories } from '../data/categories';
+import { useCategories } from '../hooks/useCategories';
 
 interface VoteStatsPanelProps {
   showExport?: boolean;
@@ -9,6 +9,7 @@ interface VoteStatsPanelProps {
 
 const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) => {
   const { voteStats, getTotalCategoryVotes } = useVoting();
+  const { categories } = useCategories();
 
   const exportData = () => {
     const data = {
@@ -144,6 +145,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
           {getVotingCategories().map((category) => {
             const totalVotes = getTotalCategoryVotes(category.id);
             const topNominee = getTopNominee(category.id);
+            const nominees = category.nominees.map(n => typeof n === 'string' ? n : n.name);
             
             return (
               <div key={category.id} className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
@@ -159,7 +161,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                         Total votes: <span className="text-blue-600">{totalVotes}</span>
                       </span>
                       <span className="text-gray-500">
-                        Nominees: {category.nominees.length}
+                        Nominees: {nominees.length}
                       </span>
                     </div>
                   </div>
@@ -172,9 +174,9 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                   )}
                 </div>
                 
-                {totalVotes > 0 && category.nominees.length > 0 ? (
+                {totalVotes > 0 && nominees.length > 0 ? (
                   <div className="space-y-3">
-                    {category.nominees.map((nominee) => {
+                    {nominees.map((nominee) => {
                       const votes = voteStats[category.id]?.[nominee] || 0;
                       const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
                       
@@ -206,7 +208,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                   </div>
                 ) : (
                   <div className="text-center py-6">
-                    {category.nominees.length === 0 ? (
+                    {nominees.length === 0 ? (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <p className="text-yellow-700 font-medium">Awaiting Nominations</p>
                         <p className="text-yellow-600 text-sm mt-1">

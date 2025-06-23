@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Vote, Check, User, Award, BarChart3 } from 'lucide-react';
 import { useVoting } from '../hooks/useVoting';
+import { Category } from '../hooks/useCategories';
 
 interface VotingModalProps {
   category: {
@@ -11,6 +12,7 @@ interface VotingModalProps {
     nominees: string[];
     isAward?: boolean;
   };
+  categoryData?: Category;
   isOpen: boolean;
   onClose: () => void;
   onVote: (categoryId: string, nominee: string) => void;
@@ -20,6 +22,7 @@ interface VotingModalProps {
 
 const VotingModal: React.FC<VotingModalProps> = ({
   category,
+  categoryData,
   isOpen,
   onClose,
   onVote,
@@ -60,10 +63,12 @@ const VotingModal: React.FC<VotingModalProps> = ({
     return gradients[index % gradients.length];
   };
 
-  const getProfileImage = (name: string) => {
-    // Generate a consistent image URL based on the name
-    const seed = name.toLowerCase().replace(/\s+/g, '-');
-    return `https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face`;
+  const getNomineePhoto = (nomineeName: string) => {
+    if (!categoryData) return null;
+    const nominee = categoryData.nominees.find(n => 
+      (typeof n === 'string' ? n : n.name) === nomineeName
+    );
+    return nominee && typeof nominee !== 'string' ? nominee.photo : null;
   };
 
   if (!isOpen) return null;
@@ -159,6 +164,7 @@ const VotingModal: React.FC<VotingModalProps> = ({
                 {category.nominees.map((nominee, index) => {
                   const voteCount = getVoteCount(category.id, nominee);
                   const votePercentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+                  const nomineePhoto = getNomineePhoto(nominee);
                   
                   return (
                     <label
@@ -185,24 +191,20 @@ const VotingModal: React.FC<VotingModalProps> = ({
                         <div className="flex items-center gap-4 mb-3">
                           {/* Photo Section */}
                           <div className="flex-shrink-0">
-                            <img 
-                              src={getProfileImage(nominee)}
-                              alt={nominee}
-                              className="w-16 h-16 rounded-full object-cover shadow-lg"
-                              onError={(e) => {
-                                // Fallback to initials if image fails to load
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const fallback = target.nextElementSibling as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }}
-                            />
-                            <div 
-                              className="w-16 h-16 rounded-full hidden items-center justify-center text-white font-bold text-lg shadow-lg"
-                              style={{ background: getRandomGradient(index) }}
-                            >
-                              {getInitials(nominee)}
-                            </div>
+                            {nomineePhoto ? (
+                              <img 
+                                src={nomineePhoto}
+                                alt={nominee}
+                                className="w-16 h-16 rounded-full object-cover shadow-lg border-2 border-gray-200"
+                              />
+                            ) : (
+                              <div 
+                                className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-2 border-gray-200"
+                                style={{ background: getRandomGradient(index) }}
+                              >
+                                {getInitials(nominee)}
+                              </div>
+                            )}
                           </div>
                           
                           {/* Nominee Info */}

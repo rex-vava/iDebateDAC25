@@ -24,6 +24,17 @@ export const useVoting = () => {
     if (savedStats) {
       setVoteStats(JSON.parse(savedStats));
     }
+
+    // Listen for category updates to clean up votes for removed nominees
+    const handleCategoriesUpdate = () => {
+      const savedStats = localStorage.getItem('dreamers-academy-vote-stats');
+      if (savedStats) {
+        setVoteStats(JSON.parse(savedStats));
+      }
+    };
+
+    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
+    return () => window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
   }, []);
 
   const vote = (categoryId: string, nominee: string) => {
@@ -74,6 +85,24 @@ export const useVoting = () => {
     return Object.values(voteStats[categoryId]).reduce((sum, count) => sum + count, 0);
   };
 
+  // Clean up votes for removed nominees
+  const cleanupVotesForRemovedNominee = (categoryId: string, nomineeName: string) => {
+    const newStats = { ...voteStats };
+    if (newStats[categoryId] && newStats[categoryId][nomineeName]) {
+      delete newStats[categoryId][nomineeName];
+      setVoteStats(newStats);
+      localStorage.setItem('dreamers-academy-vote-stats', JSON.stringify(newStats));
+    }
+
+    // Also remove user vote if they voted for this nominee
+    if (votes[categoryId] === nomineeName) {
+      const newVotes = { ...votes };
+      delete newVotes[categoryId];
+      setVotes(newVotes);
+      localStorage.setItem('dreamers-academy-votes', JSON.stringify(newVotes));
+    }
+  };
+
   return {
     vote,
     hasVoted,
@@ -81,6 +110,7 @@ export const useVoting = () => {
     getTotalVotes,
     getVoteCount,
     getTotalCategoryVotes,
+    cleanupVotesForRemovedNominee,
     votes,
     voteStats
   };

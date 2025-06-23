@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import CategoryCard from './components/CategoryCard';
 import VotingModal from './components/VotingModal';
@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import AdminLogin from './components/AdminLogin';
 import VoteStatsPanel from './components/VoteStatsPanel';
-import { categories } from './data/categories';
+import { useCategories } from './hooks/useCategories';
 import { useVoting } from './hooks/useVoting';
 import { useAuth } from './hooks/useAuth';
 import { Trophy, Users, Award, Settings, BarChart3 } from 'lucide-react';
@@ -17,8 +17,20 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const { categories } = useCategories();
   const { vote, hasVoted, getUserVote, getTotalVotes } = useVoting();
   const { isAuthenticated, isLoading } = useAuth();
+
+  // Listen for category updates
+  useEffect(() => {
+    const handleCategoriesUpdate = () => {
+      // Force re-render when categories are updated
+      setSelectedCategory(null);
+    };
+
+    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
+    return () => window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
+  }, []);
 
   const handleVote = (categoryId: string, nominee: string) => {
     vote(categoryId, nominee);
@@ -131,7 +143,9 @@ function App() {
           </div>
           <div className="bg-white rounded-xl p-6 shadow-lg text-center">
             <Users className="w-12 h-12 mx-auto mb-3" style={{ color: '#eb754f' }} />
-            <div className="text-3xl font-bold text-gray-900 mb-1">50+</div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">
+              {categories.reduce((total, cat) => total + cat.nominees.length, 0)}
+            </div>
             <div className="text-gray-600">Total Nominees</div>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-lg text-center">
@@ -159,7 +173,10 @@ function App() {
           {categories.map((category) => (
             <CategoryCard
               key={category.id}
-              category={category}
+              category={{
+                ...category,
+                nominees: category.nominees.map(n => typeof n === 'string' ? n : n.name)
+              }}
               onClick={() => setSelectedCategory(category.id)}
               hasVoted={hasVoted(category.id)}
             />
@@ -202,12 +219,16 @@ function App() {
       {/* Voting Modal */}
       {selectedCategoryData && (
         <VotingModal
-          category={selectedCategoryData}
+          category={{
+            ...selectedCategoryData,
+            nominees: selectedCategoryData.nominees.map(n => typeof n === 'string' ? n : n.name)
+          }}
           isOpen={!!selectedCategory}
           onClose={() => setSelectedCategory(null)}
           onVote={handleVote}
           hasVoted={hasVoted(selectedCategory!)}
           userVote={getUserVote(selectedCategory!)}
+          categoryData={selectedCategoryData}
         />
       )}
     </div>
