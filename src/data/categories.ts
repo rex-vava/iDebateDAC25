@@ -51,6 +51,7 @@ export const categories: Category[] = [
       'Shamila KAREMA',
       'Emma Victor',
       'Ruth JURU',
+      'Queen KABANDANA',
       'Lucas SHEMA',
       'Bonfils RUKUNDO',
       'Joana BYUMVUHORE'
