@@ -5,17 +5,29 @@ import VotingModal from './components/VotingModal';
 import CountdownTimer from './components/CountdownTimer';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
+import AdminLogin from './components/AdminLogin';
 import { categories } from './data/categories';
 import { useVoting } from './hooks/useVoting';
+import { useAuth } from './hooks/useAuth';
 import { Trophy, Users, Award, Settings } from 'lucide-react';
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const { vote, hasVoted, getUserVote, getTotalVotes } = useVoting();
+  const { isAuthenticated, isLoading } = useAuth();
 
   const handleVote = (categoryId: string, nominee: string) => {
     vote(categoryId, nominee);
+  };
+
+  const handleAdminClick = () => {
+    if (isAuthenticated) {
+      setShowAdmin(true);
+    } else {
+      setShowLogin(true);
+    }
   };
 
   const selectedCategoryData = selectedCategory 
@@ -24,6 +36,17 @@ function App() {
 
   const votableCategories = categories.filter(cat => !cat.isAward);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50">
       <Header />
@@ -31,16 +54,21 @@ function App() {
       {/* Admin Toggle */}
       <div className="fixed top-4 right-4 z-40">
         <button
-          onClick={() => setShowAdmin(!showAdmin)}
+          onClick={handleAdminClick}
           className="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
-          title="Admin Panel"
+          title={isAuthenticated ? "Admin Panel" : "Admin Login"}
         >
-          <Settings className="w-5 h-5 text-gray-600" />
+          <Settings className={`w-5 h-5 ${isAuthenticated ? 'text-green-600' : 'text-gray-600'}`} />
         </button>
       </div>
 
+      {/* Admin Login Modal */}
+      {showLogin && (
+        <AdminLogin onClose={() => setShowLogin(false)} />
+      )}
+
       {/* Admin Panel */}
-      {showAdmin && (
+      {showAdmin && isAuthenticated && (
         <AdminPanel onClose={() => setShowAdmin(false)} />
       )}
       

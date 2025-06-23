@@ -9,6 +9,22 @@ export interface Category {
 
 export const categories: Category[] = [
   {
+    id: 'mama-mekha',
+    title: 'Mama Mekha Award',
+    icon: '🥇',
+    description: 'Lifetime Service Recognition - Special Award',
+    nominees: [],
+    isAward: true
+  },
+  {
+    id: 'execution-excellence',
+    title: 'Execution Excellence Award',
+    icon: '⚡',
+    description: 'Outstanding Project Implementation - Special Award',
+    nominees: [],
+    isAward: true
+  },
+  {
     id: 'best-coordinator',
     title: 'Best Camp Coordinator',
     icon: '🏕️',
