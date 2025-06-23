@@ -35,7 +35,8 @@ export const categories: Category[] = [
     description: 'Based on camper feedback, leadership, and dedication',
     nominees: [
       'Ornella TUZA',
-      'KALISA Danny'
+      'KALISA Danny',
+      'Angelo URUKUNDO'
     ]
   },
   {
