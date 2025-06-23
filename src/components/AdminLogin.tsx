@@ -132,12 +132,15 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
 
         <div className="px-6 pb-6">
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">Admin Credentials:</h4>
-            <div className="text-sm text-gray-600 space-y-1">
-              <div><strong>Username:</strong> dreamers_admin</div>
-              <div><strong>Password:</strong> DAC2025_Gala_Admin!</div>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <h4 className="font-medium text-gray-900 mb-2">Vote Statistics Features:</h4>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Complete voting analytics for all categories</li>
+              <li>• Leading nominee tracking</li>
+              <li>• Vote percentages and counts</li>
+              <li>• Special awards clearly marked</li>
+              <li>• Export functionality for data backup</li>
+            </ul>
+            <p className="text-xs text-gray-500 mt-3">
               Session expires after 24 hours of inactivity
             </p>
           </div>

@@ -6,15 +6,17 @@ import CountdownTimer from './components/CountdownTimer';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import AdminLogin from './components/AdminLogin';
+import VoteStatsPanel from './components/VoteStatsPanel';
 import { categories } from './data/categories';
 import { useVoting } from './hooks/useVoting';
 import { useAuth } from './hooks/useAuth';
-import { Trophy, Users, Award, Settings } from 'lucide-react';
+import { Trophy, Users, Award, Settings, BarChart3 } from 'lucide-react';
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const { vote, hasVoted, getUserVote, getTotalVotes } = useVoting();
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -51,8 +53,15 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50">
       <Header />
       
-      {/* Admin Toggle */}
-      <div className="fixed top-4 right-4 z-40">
+      {/* Admin & Stats Toggle */}
+      <div className="fixed top-4 right-4 z-40 flex gap-2">
+        <button
+          onClick={() => setShowStats(!showStats)}
+          className="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
+          title="Vote Statistics"
+        >
+          <BarChart3 className="w-5 h-5 text-blue-600" />
+        </button>
         <button
           onClick={handleAdminClick}
           className="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
@@ -61,6 +70,36 @@ function App() {
           <Settings className={`w-5 h-5 ${isAuthenticated ? 'text-green-600' : 'text-gray-600'}`} />
         </button>
       </div>
+
+      {/* Vote Statistics Modal */}
+      {showStats && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-lg">
+                    <BarChart3 className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Vote Statistics</h3>
+                    <p className="text-sm text-gray-600">Real-time voting analytics and results</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowStats(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <Settings className="w-6 h-6 rotate-45" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <VoteStatsPanel showExport={false} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Admin Login Modal */}
       {showLogin && (

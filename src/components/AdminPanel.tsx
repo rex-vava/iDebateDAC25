@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { X, Users, BarChart3, Download, Upload, Plus, Trash2, Edit, LogOut, Shield, Clock } from 'lucide-react';
-import { useVoting } from '../hooks/useVoting';
+import { X, Users, BarChart3, Upload, Plus, Trash2, Edit, LogOut, Shield, Clock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { categories } from '../data/categories';
+import VoteStatsPanel from './VoteStatsPanel';
 
 interface AdminPanelProps {
   onClose: () => void;
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
-  const { voteStats, getTotalCategoryVotes } = useVoting();
   const { logout, extendSession } = useAuth();
   const [activeTab, setActiveTab] = useState<'stats' | 'manage'>('stats');
 
@@ -21,50 +20,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const handleExtendSession = () => {
     extendSession();
     alert('Session extended for another 24 hours');
-  };
-
-  const exportData = () => {
-    const data = {
-      categories,
-      voteStats,
-      exportDate: new Date().toISOString(),
-      totalVotes: Object.values(voteStats).reduce((total, categoryStats) => {
-        return total + Object.values(categoryStats).reduce((sum, count) => sum + count, 0);
-      }, 0)
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dreamers-voting-data-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const getTopNominee = (categoryId: string) => {
-    const categoryStats = voteStats[categoryId];
-    if (!categoryStats) return null;
-    
-    let topNominee = '';
-    let maxVotes = 0;
-    
-    Object.entries(categoryStats).forEach(([nominee, votes]) => {
-      if (votes > maxVotes) {
-        maxVotes = votes;
-        topNominee = nominee;
-      }
-    });
-    
-    return maxVotes > 0 ? { nominee: topNominee, votes: maxVotes } : null;
-  };
-
-  const getTotalSystemVotes = () => {
-    return Object.values(voteStats).reduce((total, categoryStats) => {
-      return total + Object.values(categoryStats).reduce((sum, count) => sum + count, 0);
-    }, 0);
   };
 
   return (
@@ -105,30 +60,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
               </button>
             </div>
           </div>
-          
-          {/* System Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-blue-900">{categories.length}</div>
-              <div className="text-sm text-blue-700">Total Categories</div>
-            </div>
-            <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-green-900">{getTotalSystemVotes()}</div>
-              <div className="text-sm text-green-700">Total Votes Cast</div>
-            </div>
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-purple-900">
-                {categories.filter(cat => !cat.isAward).length}
-              </div>
-              <div className="text-sm text-purple-700">Voting Categories</div>
-            </div>
-            <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-orange-900">
-                {categories.filter(cat => cat.isAward).length}
-              </div>
-              <div className="text-sm text-orange-700">Special Awards</div>
-            </div>
-          </div>
 
           <div className="flex gap-4 mt-6">
             <button
@@ -158,106 +89,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
 
         <div className="p-6">
           {activeTab === 'stats' && (
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h4 className="text-xl font-semibold">Voting Statistics</h4>
-                <button
-                  onClick={exportData}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Export Data
-                </button>
-              </div>
-
-              <div className="grid gap-6">
-                {categories.map((category) => {
-                  if (category.isAward) {
-                    return (
-                      <div key={category.id} className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6 border-l-4 border-yellow-400">
-                        <div className="flex items-center gap-3">
-                          <div className="text-2xl">{category.icon}</div>
-                          <div>
-                            <h5 className="text-lg font-semibold text-gray-900">
-                              {category.title}
-                            </h5>
-                            <p className="text-sm text-gray-600">{category.description}</p>
-                            <span className="inline-block mt-2 px-3 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full font-medium">
-                              Special Award - No Voting Required
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  const totalVotes = getTotalCategoryVotes(category.id);
-                  const topNominee = getTopNominee(category.id);
-                  
-                  return (
-                    <div key={category.id} className="bg-gray-50 rounded-lg p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h5 className="text-lg font-semibold text-gray-900">
-                            {category.icon} {category.title}
-                          </h5>
-                          <p className="text-sm text-gray-600 mb-2">{category.description}</p>
-                          <p className="text-sm font-medium text-gray-700">Total votes: {totalVotes}</p>
-                        </div>
-                        {topNominee && (
-                          <div className="text-right bg-white p-3 rounded-lg shadow-sm">
-                            <p className="text-sm text-gray-600">Leading:</p>
-                            <p className="font-medium text-orange-600">{topNominee.nominee}</p>
-                            <p className="text-sm text-gray-500">{topNominee.votes} votes</p>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {totalVotes > 0 && category.nominees.length > 0 && (
-                        <div className="space-y-3">
-                          {category.nominees.map((nominee) => {
-                            const votes = voteStats[category.id]?.[nominee] || 0;
-                            const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
-                            
-                            return (
-                              <div key={nominee} className="bg-white p-3 rounded-lg">
-                                <div className="flex justify-between items-center mb-2">
-                                  <span className="text-sm font-medium text-gray-700">{nominee}</span>
-                                  <span className="text-sm text-gray-500">
-                                    {votes} vote{votes !== 1 ? 's' : ''} ({percentage.toFixed(1)}%)
-                                  </span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div 
-                                    className="h-2 rounded-full transition-all duration-500"
-                                    style={{ 
-                                      width: `${percentage}%`,
-                                      background: 'linear-gradient(to right, #eb754f, #f4be68)'
-                                    }}
-                                  ></div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      {totalVotes === 0 && (
-                        <div className="text-center py-4 text-gray-500">
-                          No votes cast yet for this category
-                        </div>
-                      )}
-
-                      {category.nominees.length === 0 && (
-                        <div className="text-center py-4 text-gray-500 bg-yellow-50 rounded-lg">
-                          No nominees added yet - awaiting nominations
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <VoteStatsPanel showExport={true} />
           )}
 
           {activeTab === 'manage' && (
