@@ -107,13 +107,6 @@ export const categories: Category[] = [
     nominees: []
   },
   {
-    id: 'best-speaker',
-    title: 'Best Speaker of the Decade',
-    icon: '🎤',
-    description: 'Best debaters to stand out with exceptional speaking skills',
-    nominees: []
-  },
-  {
     id: 'face-dreamers',
     title: 'Face of the Dreamers',
     icon: '👑',
