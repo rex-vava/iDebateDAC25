@@ -107,13 +107,6 @@ export const categories: Category[] = [
     nominees: []
   },
   {
-    id: 'alumni-impact',
-    title: 'Alumni Story of Impact',
-    icon: '🌟',
-    description: 'Alumni who became changemakers and made significant impact',
-    nominees: []
-  },
-  {
     id: 'best-speaker',
     title: 'Best Speaker of the Decade',
     icon: '🎤',
