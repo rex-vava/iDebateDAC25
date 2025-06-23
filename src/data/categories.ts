@@ -9,37 +9,24 @@ export interface Category {
 
 export const categories: Category[] = [
   {
-    id: 'mama-mekha',
-    title: 'Mama Mekha Award',
-    icon: '🥇',
-    description: 'Lifetime Service Recognition - Special Award',
-    nominees: [],
-    isAward: true
-  },
-  {
     id: 'best-coordinator',
     title: 'Best Camp Coordinator',
-    icon: '🏕',
+    icon: '🏕️',
     description: 'Based on camper feedback, leadership, and dedication',
     nominees: [
-      'David Mugisha - 2023-2024',
-      'Maria Uwimana - 2021-2022',
-      'Jean Claude Nzeyimana - 2019-2020',
-      'Aline Uwase - 2017-2018',
-      'Patrick Ndayisaba - 2015-2016'
+      'Ornella TUZA',
+      'KALISA Danny'
     ]
   },
   {
     id: 'top-venue',
-    title: 'Top Hosting Venue',
-    icon: '🏛',
+    title: 'Top Host Venue',
+    icon: '🏛️',
     description: 'Most welcoming venue with strong logistical support',
     nominees: [
-      'University of Rwanda - Huye Campus',
-      'Kigali Independent University',
-      'INES-Ruhengeri Campus',
-      'Adventist University of Central Africa',
-      'University of Kigali Main Campus'
+      'New Life High School',
+      'Hope Haven',
+      'Gashora Girls Academy'
     ]
   },
   {
@@ -48,24 +35,25 @@ export const categories: Category[] = [
     icon: '🤝',
     description: 'Group that left a lasting mark through service and spirit',
     nominees: [
-      'Class of 2020 Volunteers',
-      'Class of 2018 Volunteers',  
-      'Class of 2022 Volunteers',
-      'Class of 2019 Volunteers',
-      'Class of 2021 Volunteers'
+      'iVolunteer \'25',
+      'iVolunteer \'24',
+      'iVolunteer \'23',
+      'iVolunteer \'22'
     ]
   },
   {
-    id: 'debate-coach',
-    title: 'Best Debate Camp Coach',
+    id: 'mentor-decade',
+    title: 'Mentor of the Decade',
     icon: '👨‍🏫',
-    description: 'For energy, consistency, mentorship, and camper impact',
+    description: 'Known for creating winning teams and impacting students',
     nominees: [
-      'Emmanuel Rutayisire',
-      'Claudine Uwimana',
-      'James Nkurunziza',
-      'Diane Mukamana',
-      'Felix Nsabimana'
+      'Brenna',
+      'Shamila',
+      'Emma Victor',
+      'Ruth',
+      'Lucas',
+      'Bonfils',
+      'Joana'
     ]
   },
   {
@@ -74,76 +62,81 @@ export const categories: Category[] = [
     icon: '🎨',
     description: 'The most engaging and enjoyable experience for campers',
     nominees: [
-      'Creative Writing Workshop',
-      'Leadership & Public Speaking',
-      'Entrepreneurship Bootcamp',
-      'Arts & Drama Therapy',
-      'Technology & Innovation Lab'
+      'Dance Class',
+      'Creative Writing',
+      'Multimedia',
+      'Art Class',
+      'Leveraging AI',
+      'Leadership Nexus'
     ]
   },
   {
-    id: 'consistent-partner',
-    title: 'Most Consistent Partner',
-    icon: '🧩',
-    description: 'Organization or individual who supported over the years',
+    id: 'partners-spotlight',
+    title: 'The Partner\'s Spotlight',
+    icon: '🤝',
+    description: 'Organization that provided exceptional support and partnership',
     nominees: [
-      'Rwanda Debate Association',
-      'Ministry of Education',
-      'Private Sector Federation',
-      'UN Women Rwanda',
-      'British Council Rwanda'
+      'BK Foundation',
+      'Mastercard Foundation',
+      'JMU',
+      'ALX'
     ]
   },
   {
-    id: 'alumni-couple',
-    title: 'Alumni Couple of the Decade',
-    icon: '💑',
-    description: 'From camp sweethearts to life partners',
-    nominees: [
-      'John & Mary Uwimana (2016 & 2017 Alumni)',
-      'Paul & Grace Mukamana (2015 & 2016 Alumni)',
-      'Eric & Sarah Nzeyimana (2018 & 2019 Alumni)',
-      'Kevin & Alice Uwase (2017 & 2018 Alumni)',
-      'Daniel & Claire Mugisha (2019 & 2020 Alumni)'
-    ]
+    id: 'dreamer-decade',
+    title: 'Dreamer of the Decade',
+    icon: '💭',
+    description: 'When you think of camp, who comes to mind?',
+    nominees: []
   },
   {
-    id: 'impact-story',
+    id: 'alumni-impact',
     title: 'Alumni Story of Impact',
     icon: '🌟',
-    description: 'Alumni who became public figures, founders, changemakers',
-    nominees: [
-      'Aisha Uwimana - Tech Entrepreneur & Founder',
-      'Jean Baptiste Nkurunziza - Social Activist & NGO Leader',
-      'Claudine Mukamana - Government Official & Policy Maker',
-      'Emmanuel Rwigema - International Development Consultant',
-      'Grace Uwase - Award-winning Journalist & Media Personality'
-    ]
+    description: 'Alumni who became changemakers and made significant impact',
+    nominees: []
   },
   {
     id: 'best-speaker',
     title: 'Best Speaker of the Decade',
     icon: '🎤',
-    description: 'Embodiment of debating excellence and presence',
+    description: 'Best debaters to stand out with exceptional speaking skills',
+    nominees: []
+  },
+  {
+    id: 'face-dreamers',
+    title: 'Face of the Dreamers',
+    icon: '👑',
+    description: 'The person who best represents the spirit of Dreamers Academy',
     nominees: [
-      'David Nkurunziza - 2019 Champion',
-      'Sarah Mukamana - 2021 Winner',
-      'James Uwimana - 2020 Finalist',
-      'Alice Uwase - 2022 Champion',
-      'Patrick Mugisha - 2018 Winner'
+      'Kalisa Deborah',
+      'Ruzindana Kessy',
+      'Akarabo Katsey'
+    ]
+  },
+  {
+    id: 'hype-maker',
+    title: 'Hype Maker of the Decade',
+    icon: '🎉',
+    description: 'The person who brought the most energy and excitement to camp',
+    nominees: [
+      'Kendy',
+      'La Tasha',
+      'Abi'
     ]
   },
   {
     id: 'involved-alumni',
     title: 'Most Involved Alumni',
     icon: '🔄',
-    description: 'Returned to coach, judge, organize, or mentor over the years',
-    nominees: [
-      'Martin Nzeyimana - Coach & Organizer (2016-2024)',
-      'Diane Uwimana - Judge & Mentor (2017-2024)',
-      'Felix Mukamana - Coordinator & Trainer (2018-2024)',
-      'Esther Nkurunziza - Alumni Relations (2019-2024)',
-      'Kevin Uwase - Volunteer Coordinator (2020-2024)'
-    ]
+    description: 'Alumni who consistently returned to support and mentor',
+    nominees: []
+  },
+  {
+    id: 'dream-creator',
+    title: 'Dream Creator of the Decade',
+    icon: '✨',
+    description: 'The visionary who helped shape and create the dream',
+    nominees: []
   }
 ];
