@@ -30,6 +30,7 @@ export const useAuth = () => {
           // Token expired, clear storage
           localStorage.removeItem('dreamers-admin-token');
           localStorage.removeItem('dreamers-admin-expiry');
+          setIsAuthenticated(false);
         }
       }
       
@@ -62,9 +63,13 @@ export const useAuth = () => {
   };
 
   const logout = () => {
+    // Clear all authentication data
     localStorage.removeItem('dreamers-admin-token');
     localStorage.removeItem('dreamers-admin-expiry');
     setIsAuthenticated(false);
+    
+    // Force a page reload to ensure clean state
+    window.location.reload();
   };
 
   const extendSession = () => {

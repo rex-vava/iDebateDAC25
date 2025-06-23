@@ -20,9 +20,13 @@ export const categories: Category[] = [
     id: 'execution-excellence',
     title: 'Execution Excellence Award',
     icon: '⚡',
-    description: 'Outstanding Project Implementation - Special Award',
-    nominees: [],
-    isAward: true
+    description: 'Outstanding Project Implementation and Leadership',
+    nominees: [
+      'KALISA Danny',
+      'Ornella TUZA',
+      'Emma Victor',
+      'Lucas SHEMA'
+    ]
   },
   {
     id: 'best-coordinator',

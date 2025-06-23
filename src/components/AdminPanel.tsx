@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Users, BarChart3, Upload, Plus, Trash2, Edit, LogOut, Shield, Clock } from 'lucide-react';
+import { X, Users, BarChart3, Plus, Trash2, Edit, LogOut, Shield, Clock, Save, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { categories } from '../data/categories';
 import VoteStatsPanel from './VoteStatsPanel';
@@ -11,15 +11,53 @@ interface AdminPanelProps {
 const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const { logout, extendSession } = useAuth();
   const [activeTab, setActiveTab] = useState<'stats' | 'manage'>('stats');
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [newNominee, setNewNominee] = useState('');
+  const [showAddNominee, setShowAddNominee] = useState<string | null>(null);
+  const [localCategories, setLocalCategories] = useState(categories);
 
   const handleLogout = () => {
-    logout();
-    onClose();
+    if (confirm('Are you sure you want to logout?')) {
+      logout();
+    }
   };
 
   const handleExtendSession = () => {
     extendSession();
     alert('Session extended for another 24 hours');
+  };
+
+  const addNominee = (categoryId: string) => {
+    if (!newNominee.trim()) return;
+    
+    setLocalCategories(prev => prev.map(cat => 
+      cat.id === categoryId 
+        ? { ...cat, nominees: [...cat.nominees, newNominee.trim()] }
+        : cat
+    ));
+    
+    setNewNominee('');
+    setShowAddNominee(null);
+    
+    // In a real app, this would sync with backend
+    alert('Nominee added successfully!');
+  };
+
+  const removeNominee = (categoryId: string, nomineeIndex: number) => {
+    if (confirm('Are you sure you want to remove this nominee?')) {
+      setLocalCategories(prev => prev.map(cat => 
+        cat.id === categoryId 
+          ? { ...cat, nominees: cat.nominees.filter((_, index) => index !== nomineeIndex) }
+          : cat
+      ));
+      
+      alert('Nominee removed successfully!');
+    }
+  };
+
+  const saveChanges = () => {
+    // In a real app, this would sync with backend
+    alert('Changes saved successfully! Note: In production, this would sync with the backend database.');
   };
 
   return (
@@ -97,19 +135,30 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
               <div className="flex justify-between items-center mb-6">
                 <h4 className="text-xl font-semibold">Manage Categories & Nominees</h4>
                 <div className="flex gap-2">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                    <Upload className="w-4 h-4" />
-                    Import Data
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                    <Plus className="w-4 h-4" />
-                    Add Category
+                  <button 
+                    onClick={saveChanges}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Changes
                   </button>
                 </div>
               </div>
 
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h5 className="font-medium text-blue-900">Development Note</h5>
+                    <p className="text-blue-700 text-sm mt-1">
+                      Changes made here are currently stored locally. In production, these would sync with a backend database and be reflected across all users in real-time.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-6">
-                {categories.map((category) => (
+                {localCategories.map((category) => (
                   <div key={category.id} className={`rounded-lg p-6 ${
                     category.isAward 
                       ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400' 
@@ -123,16 +172,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                         <p className="text-sm text-gray-600">{category.description}</p>
                         {category.isAward && (
                           <span className="inline-block mt-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                            Special Award
+                            Special Award - No Voting
                           </span>
                         )}
                       </div>
                       <div className="flex gap-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors">
+                        <button 
+                          onClick={() => setEditingCategory(editingCategory === category.id ? null : category.id)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                          title="Edit category"
+                        >
                           <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -146,16 +196,56 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                               <span className="text-yellow-600 text-sm ml-2">(Awaiting nominations)</span>
                             )}
                           </h6>
-                          <button className="text-sm text-blue-600 hover:text-blue-800">
-                            + Add Nominee
+                          <button 
+                            onClick={() => setShowAddNominee(showAddNominee === category.id ? null : category.id)}
+                            className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Add Nominee
                           </button>
                         </div>
+
+                        {showAddNominee === category.id && (
+                          <div className="bg-white p-4 rounded-lg border border-blue-200 mb-3">
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={newNominee}
+                                onChange={(e) => setNewNominee(e.target.value)}
+                                placeholder="Enter nominee name..."
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                onKeyPress={(e) => e.key === 'Enter' && addNominee(category.id)}
+                              />
+                              <button
+                                onClick={() => addNominee(category.id)}
+                                disabled={!newNominee.trim()}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Add
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setShowAddNominee(null);
+                                  setNewNominee('');
+                                }}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
                         {category.nominees.length > 0 ? (
                           <div className="grid gap-2">
                             {category.nominees.map((nominee, index) => (
                               <div key={index} className="flex justify-between items-center bg-white p-3 rounded border">
-                                <span className="text-sm">{nominee}</span>
-                                <button className="text-red-600 hover:text-red-800">
+                                <span className="text-sm font-medium">{nominee}</span>
+                                <button 
+                                  onClick={() => removeNominee(category.id, index)}
+                                  className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition-colors"
+                                  title="Remove nominee"
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
@@ -164,7 +254,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                         ) : (
                           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
                             <p className="text-yellow-700 text-sm">
-                              No nominees added yet. This category is awaiting nominations.
+                              No nominees added yet. Click "Add Nominee" to get started.
                             </p>
                           </div>
                         )}
