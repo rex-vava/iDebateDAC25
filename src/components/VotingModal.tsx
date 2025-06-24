@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { X, Vote, Check, User, Award, BarChart3 } from 'lucide-react';
 import { useVoting } from '../hooks/useVoting';
+import { useLanguage } from '../hooks/useLanguage';
 import { Category } from '../hooks/useCategories';
+import { t } from '../utils/translations';
 
 interface VotingModalProps {
   category: {
@@ -32,6 +34,7 @@ const VotingModal: React.FC<VotingModalProps> = ({
   const [selectedNominee, setSelectedNominee] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { getVoteCount, getTotalCategoryVotes } = useVoting();
+  const { language } = useLanguage();
 
   const handleSubmit = async () => {
     if (!selectedNominee) return;
@@ -77,18 +80,18 @@ const VotingModal: React.FC<VotingModalProps> = ({
   if (category.isAward) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors duration-300">
                   {category.icon} {category.title}
                 </h3>
-                <p className="text-gray-600">{category.description}</p>
+                <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">{category.description}</p>
               </div>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -98,15 +101,15 @@ const VotingModal: React.FC<VotingModalProps> = ({
           <div className="p-6">
             <div className="text-center py-12">
               <Award className="w-20 h-20 mx-auto mb-6" style={{ color: '#f4be68' }} />
-              <h4 className="text-2xl font-bold text-gray-900 mb-4">
-                Special Recognition Award
+              <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+                {t('specialRecognitionAward', language)}
               </h4>
-              <p className="text-gray-600 text-lg mb-6">
-                This is a special lifetime achievement award that will be presented during the gala ceremony.
+              <p className="text-gray-600 dark:text-gray-400 text-lg mb-6 transition-colors duration-300">
+                {t('lifetimeAchievement', language)}
               </p>
-              <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6">
-                <p className="text-gray-700 font-medium">
-                  The recipient will be announced at the event as a surprise recognition for their outstanding contribution to Dreamers Academy Camp over the years.
+              <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-lg p-6 border border-orange-200 dark:border-orange-800 transition-colors duration-300">
+                <p className="text-gray-700 dark:text-gray-300 font-medium transition-colors duration-300">
+                  {t('surpriseRecognition', language)}
                 </p>
               </div>
             </div>
@@ -120,24 +123,24 @@ const VotingModal: React.FC<VotingModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div className="p-6 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors duration-300">
                 {category.icon} {category.title}
               </h3>
-              <p className="text-gray-600">{category.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">{category.description}</p>
               {totalVotes > 0 && (
-                <div className="flex items-center mt-2 text-sm text-gray-500">
+                <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
                   <BarChart3 className="w-4 h-4 mr-1" />
-                  <span>{totalVotes} total votes cast</span>
+                  <span>{totalVotes} {t('totalVotesCast', language)}</span>
                 </div>
               )}
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -148,17 +151,17 @@ const VotingModal: React.FC<VotingModalProps> = ({
           {hasVoted ? (
             <div className="text-center py-8">
               <Check className="w-16 h-16 mx-auto mb-4" style={{ color: '#a16333' }} />
-              <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                Vote Successfully Submitted!
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors duration-300">
+                {t('voteSuccessTitle', language)}
               </h4>
-              <p className="text-gray-600">
-                You voted for: <span className="font-medium">{userVote}</span>
+              <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                {t('youVotedFor', language)} <span className="font-medium">{userVote}</span>
               </p>
             </div>
           ) : (
             <>
-              <h4 className="text-lg font-semibold text-gray-900 mb-6">
-                Select your choice:
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+                {t('selectChoice', language)}
               </h4>
               <div className="grid gap-4">
                 {category.nominees.map((nominee, index) => {
@@ -171,12 +174,12 @@ const VotingModal: React.FC<VotingModalProps> = ({
                       key={index}
                       className={`block border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
                         selectedNominee === nominee
-                          ? 'border-orange-500 bg-orange-50 shadow-lg'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 shadow-lg'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                       }`}
                       style={selectedNominee === nominee ? {
                         borderColor: '#eb754f',
-                        backgroundColor: '#fff7ed'
+                        backgroundColor: language === 'en' ? '#fff7ed' : '#fff7ed'
                       } : {}}
                     >
                       <input
@@ -195,11 +198,11 @@ const VotingModal: React.FC<VotingModalProps> = ({
                               <img 
                                 src={nomineePhoto}
                                 alt={nominee}
-                                className="w-16 h-16 rounded-full object-cover shadow-lg border-2 border-gray-200"
+                                className="w-16 h-16 rounded-full object-cover shadow-lg border-2 border-gray-200 dark:border-gray-600"
                               />
                             ) : (
                               <div 
-                                className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-2 border-gray-200"
+                                className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-2 border-gray-200 dark:border-gray-600"
                                 style={{ background: getRandomGradient(index) }}
                               >
                                 {getInitials(nominee)}
@@ -209,20 +212,20 @@ const VotingModal: React.FC<VotingModalProps> = ({
                           
                           {/* Nominee Info */}
                           <div className="flex-grow">
-                            <h5 className="text-lg font-semibold text-gray-900 mb-1">
+                            <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 transition-colors duration-300">
                               {nominee}
                             </h5>
-                            <div className="flex items-center text-sm text-gray-500">
+                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
                               <User className="w-4 h-4 mr-1" />
-                              <span>Nominee</span>
+                              <span>{t('nominee', language)}</span>
                             </div>
                           </div>
                           
                           {/* Vote Count & Selection Indicator */}
                           <div className="flex-shrink-0 text-right">
                             {voteCount > 0 && (
-                              <div className="text-sm text-gray-600 mb-1">
-                                {voteCount} vote{voteCount !== 1 ? 's' : ''} ({votePercentage.toFixed(1)}%)
+                              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors duration-300">
+                                {voteCount} {voteCount === 1 ? t('vote', language) : t('votes', language)} ({votePercentage.toFixed(1)}%)
                               </div>
                             )}
                             {selectedNominee === nominee && (
@@ -238,7 +241,7 @@ const VotingModal: React.FC<VotingModalProps> = ({
                         
                         {/* Vote Progress Bar */}
                         {totalVotes > 0 && (
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 transition-colors duration-300">
                             <div 
                               className="h-2 rounded-full transition-all duration-500"
                               style={{ 
@@ -257,9 +260,9 @@ const VotingModal: React.FC<VotingModalProps> = ({
               <div className="mt-8 flex justify-end gap-3">
                 <button
                   onClick={onClose}
-                  className="px-6 py-3 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                  className="px-6 py-3 text-gray-600 dark:text-gray-400 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
-                  Cancel
+                  {t('cancel', language)}
                 </button>
                 <button
                   onClick={handleSubmit}
@@ -272,12 +275,12 @@ const VotingModal: React.FC<VotingModalProps> = ({
                   {isSubmitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Submitting...
+                      {t('submitting', language)}
                     </>
                   ) : (
                     <>
                       <Vote className="w-4 h-4" />
-                      Submit Vote
+                      {t('submitVote', language)}
                     </>
                   )}
                 </button>
