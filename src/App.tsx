@@ -10,7 +10,6 @@ import AdminLogin from './components/AdminLogin';
 import VoteStatsPanel from './components/VoteStatsPanel';
 import ThemeToggle from './components/ThemeToggle';
 import LanguageToggle from './components/LanguageToggle';
-import PerformanceMonitor from './components/PerformanceMonitor';
 import { useCategories } from './hooks/useCategories';
 import { useVoting } from './hooks/useVoting';
 import { useAuth } from './hooks/useAuth';
@@ -278,9 +277,6 @@ function App() {
             />
           </Suspense>
         )}
-
-        {/* Performance Monitor (Development Only) */}
-        <PerformanceMonitor />
       </div>
     </ErrorBoundary>
   );

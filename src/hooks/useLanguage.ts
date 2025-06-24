@@ -7,9 +7,9 @@ export const useLanguage = () => {
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('dreamers-language') as Language;
-    const browserLanguage = navigator.language.startsWith('fr') ? 'fr' : 'en';
     
-    const initialLanguage = savedLanguage || browserLanguage;
+    // Always default to English unless explicitly saved as French
+    const initialLanguage = savedLanguage === 'fr' ? 'fr' : 'en';
     setLanguage(initialLanguage);
   }, []);
 
