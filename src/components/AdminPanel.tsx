@@ -11,12 +11,13 @@ interface AdminPanelProps {
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const { logout, extendSession } = useAuth();
-  const { categories, addNominee, removeNominee, updateNomineePhoto, updateCategory } = useCategories();
+  const { categories, addNominee, removeNominee, updateNomineePhoto, updateCategory, loading } = useCategories();
   const [activeTab, setActiveTab] = useState<'stats' | 'manage'>('stats');
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [newNominee, setNewNominee] = useState('');
   const [showAddNominee, setShowAddNominee] = useState<string | null>(null);
-  const [editingNominee, setEditingNominee] = useState<{categoryId: string, index: number} | null>(null);
+  const [editingNominee, setEditingNominee] = useState<{categoryId: string, nomineeId: string} | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
@@ -30,41 +31,71 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
     alert('Session extended for another 24 hours');
   };
 
-  const handleAddNominee = (categoryId: string) => {
-    if (!newNominee.trim()) return;
+  const handleAddNominee = async (categoryId: string) => {
+    if (!newNominee.trim() || isSubmitting) return;
     
-    addNominee(categoryId, { name: newNominee.trim() });
-    setNewNominee('');
-    setShowAddNominee(null);
+    setIsSubmitting(true);
+    const success = await addNominee(categoryId, { name: newNominee.trim() });
     
-    alert('Nominee added successfully! Changes are now live on the voting page.');
+    if (success) {
+      setNewNominee('');
+      setShowAddNominee(null);
+      alert('Nominee added successfully! Changes are now live for all users.');
+    } else {
+      alert('Failed to add nominee. Please try again.');
+    }
+    setIsSubmitting(false);
   };
 
-  const handleRemoveNominee = (categoryId: string, nomineeIndex: number) => {
-    const category = categories.find(c => c.id === categoryId);
-    const nominee = category?.nominees[nomineeIndex];
-    const nomineeName = typeof nominee === 'string' ? nominee : nominee?.name;
-    
+  const handleRemoveNominee = async (categoryId: string, nomineeId: string, nomineeName: string) => {
     if (confirm(`Are you sure you want to remove "${nomineeName}"? This will also remove all votes for this nominee.`)) {
-      removeNominee(categoryId, nomineeIndex);
-      alert('Nominee removed successfully! Changes are now live on the voting page.');
+      setIsSubmitting(true);
+      const success = await removeNominee(categoryId, nomineeId);
+      
+      if (success) {
+        alert('Nominee removed successfully! Changes are now live for all users.');
+      } else {
+        alert('Failed to remove nominee. Please try again.');
+      }
+      setIsSubmitting(false);
     }
   };
 
-  const handlePhotoChange = (categoryId: string, nomineeIndex: number, photo: string | null) => {
-    updateNomineePhoto(categoryId, nomineeIndex, photo || '');
-    alert('Photo updated successfully! Changes are now live on the voting page.');
+  const handlePhotoChange = async (nomineeId: string, photo: string | null) => {
+    setIsSubmitting(true);
+    const success = await updateNomineePhoto(nomineeId, photo || '');
+    
+    if (success) {
+      alert('Photo updated successfully! Changes are now live for all users.');
+      setEditingNominee(null);
+    } else {
+      alert('Failed to update photo. Please try again.');
+    }
+    setIsSubmitting(false);
   };
 
-  const handleCategoryEdit = (categoryId: string, field: string, value: string) => {
-    updateCategory(categoryId, { [field]: value });
-    alert('Category updated successfully! Changes are now live on the voting page.');
+  const handleCategoryEdit = async (categoryId: string, field: string, value: string) => {
+    const success = await updateCategory(categoryId, { [field]: value });
+    if (!success) {
+      alert('Failed to update category. Please try again.');
+    }
   };
 
-  const handleSaveCategory = (categoryId: string) => {
+  const handleSaveCategory = async (categoryId: string) => {
     setEditingCategory(null);
-    alert('Category changes saved successfully!');
+    alert('Category changes saved successfully! Changes are now live for all users.');
   };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl p-8 text-center">
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading admin panel...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -77,7 +108,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Admin Panel</h3>
-                <p className="text-sm text-gray-600">Dreamers Academy Gala Voting System</p>
+                <p className="text-sm text-gray-600">Dreamers Academy Gala Voting System - Live Database</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -142,7 +173,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                 <h4 className="text-xl font-semibold">Manage Categories & Nominees</h4>
                 <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
                   <p className="text-green-700 text-sm font-medium">
-                    ✓ All changes are automatically applied to the live voting page
+                    ✓ All changes are instantly live for all users worldwide
                   </p>
                 </div>
               </div>
@@ -151,12 +182,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-medium text-blue-900">Photo Upload Features</h5>
+                    <h5 className="font-medium text-blue-900">Global Database Features</h5>
                     <p className="text-blue-700 text-sm mt-1">
-                      • Upload photos for nominees (max 5MB per image)<br/>
-                      • Drag & drop or click to upload<br/>
-                      • Photos are stored locally and will be visible to all voters immediately<br/>
-                      • Supported formats: JPG, PNG, GIF
+                      • All changes are saved to the cloud database<br/>
+                      • Updates are instantly visible to all users worldwide<br/>
+                      • Photos are stored securely and load globally<br/>
+                      • Real-time synchronization across all devices<br/>
+                      • Automatic backup and data persistence
                     </p>
                   </div>
                 </div>
@@ -165,7 +197,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
               <div className="space-y-6">
                 {categories.map((category) => (
                   <div key={category.id} className={`rounded-lg p-6 border-2 ${
-                    category.isAward 
+                    category.is_award 
                       ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-300' 
                       : 'bg-gray-50 border-gray-200'
                   }`}>
@@ -206,7 +238,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                             <p className="text-sm text-gray-600">{category.description}</p>
                           </>
                         )}
-                        {category.isAward && (
+                        {category.is_award && (
                           <span className="inline-block mt-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
                             Special Award - No Voting
                           </span>
@@ -233,7 +265,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       </div>
                     </div>
                     
-                    {!category.isAward && (
+                    {!category.is_award && (
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <h6 className="font-medium text-gray-700">
@@ -245,6 +277,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                           <button 
                             onClick={() => setShowAddNominee(showAddNominee === category.id ? null : category.id)}
                             className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition-colors"
+                            disabled={isSubmitting}
                           >
                             <Plus className="w-4 h-4" />
                             Add Nominee
@@ -261,13 +294,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                                 placeholder="Enter nominee name..."
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 onKeyPress={(e) => e.key === 'Enter' && handleAddNominee(category.id)}
+                                disabled={isSubmitting}
                               />
                               <button
                                 onClick={() => handleAddNominee(category.id)}
-                                disabled={!newNominee.trim()}
+                                disabled={!newNominee.trim() || isSubmitting}
                                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                               >
-                                Add
+                                {isSubmitting ? 'Adding...' : 'Add'}
                               </button>
                               <button
                                 onClick={() => {
@@ -275,6 +309,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                                   setNewNominee('');
                                 }}
                                 className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                                disabled={isSubmitting}
                               >
                                 Cancel
                               </button>
@@ -284,90 +319,86 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
 
                         {category.nominees.length > 0 ? (
                           <div className="grid gap-4">
-                            {category.nominees.map((nominee, index) => {
-                              const nomineeName = typeof nominee === 'string' ? nominee : nominee.name;
-                              const nomineePhoto = typeof nominee === 'string' ? undefined : nominee.photo;
-                              
-                              return (
-                                <div key={index} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                                  <div className="flex items-start gap-4">
-                                    <div className="flex-shrink-0">
-                                      {nomineePhoto ? (
-                                        <div className="relative">
-                                          <img
-                                            src={nomineePhoto}
-                                            alt={nomineeName}
-                                            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                                          />
-                                          <button
-                                            onClick={() => setEditingNominee(
-                                              editingNominee?.categoryId === category.id && editingNominee?.index === index
-                                                ? null 
-                                                : { categoryId: category.id, index }
-                                            )}
-                                            className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full p-1 hover:bg-blue-600 transition-colors"
-                                            title="Change photo"
-                                          >
-                                            <Camera className="w-3 h-3" />
-                                          </button>
-                                        </div>
-                                      ) : (
-                                        <div 
-                                          className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                            {category.nominees.map((nominee) => (
+                              <div key={nominee.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="flex items-start gap-4">
+                                  <div className="flex-shrink-0">
+                                    {nominee.photo ? (
+                                      <div className="relative">
+                                        <img
+                                          src={nominee.photo}
+                                          alt={nominee.name}
+                                          className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                                        />
+                                        <button
                                           onClick={() => setEditingNominee(
-                                            editingNominee?.categoryId === category.id && editingNominee?.index === index
+                                            editingNominee?.nomineeId === nominee.id
                                               ? null 
-                                              : { categoryId: category.id, index }
+                                              : { categoryId: category.id, nomineeId: nominee.id }
                                           )}
-                                          title="Add photo"
+                                          className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full p-1 hover:bg-blue-600 transition-colors"
+                                          title="Change photo"
                                         >
-                                          {nomineeName.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2)}
-                                        </div>
-                                      )}
+                                          <Camera className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div 
+                                        className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                                        onClick={() => setEditingNominee(
+                                          editingNominee?.nomineeId === nominee.id
+                                            ? null 
+                                            : { categoryId: category.id, nomineeId: nominee.id }
+                                        )}
+                                        title="Add photo"
+                                      >
+                                        {nominee.name.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2)}
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="flex-1">
+                                    <div className="flex justify-between items-start">
+                                      <div>
+                                        <h6 className="font-semibold text-gray-900">{nominee.name}</h6>
+                                        <p className="text-sm text-gray-500">Nominee</p>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => setEditingNominee(
+                                            editingNominee?.nomineeId === nominee.id
+                                              ? null 
+                                              : { categoryId: category.id, nomineeId: nominee.id }
+                                          )}
+                                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                          title="Manage photo"
+                                        >
+                                          <Camera className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                          onClick={() => handleRemoveNominee(category.id, nominee.id, nominee.name)}
+                                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                          title="Remove nominee"
+                                          disabled={isSubmitting}
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
                                     </div>
                                     
-                                    <div className="flex-1">
-                                      <div className="flex justify-between items-start">
-                                        <div>
-                                          <h6 className="font-semibold text-gray-900">{nomineeName}</h6>
-                                          <p className="text-sm text-gray-500">Nominee</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                          <button
-                                            onClick={() => setEditingNominee(
-                                              editingNominee?.categoryId === category.id && editingNominee?.index === index
-                                                ? null 
-                                                : { categoryId: category.id, index }
-                                            )}
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                            title="Manage photo"
-                                          >
-                                            <Camera className="w-4 h-4" />
-                                          </button>
-                                          <button 
-                                            onClick={() => handleRemoveNominee(category.id, index)}
-                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                            title="Remove nominee"
-                                          >
-                                            <Trash2 className="w-4 h-4" />
-                                          </button>
-                                        </div>
+                                    {editingNominee?.nomineeId === nominee.id && (
+                                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                                        <PhotoUpload
+                                          currentPhoto={nominee.photo}
+                                          onPhotoChange={(photo) => handlePhotoChange(nominee.id, photo)}
+                                          nomineeName={nominee.name}
+                                        />
                                       </div>
-                                      
-                                      {editingNominee?.categoryId === category.id && editingNominee?.index === index && (
-                                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-                                          <PhotoUpload
-                                            currentPhoto={nomineePhoto}
-                                            onPhotoChange={(photo) => handlePhotoChange(category.id, index, photo)}
-                                            nomineeName={nomineeName}
-                                          />
-                                        </div>
-                                      )}
-                                    </div>
+                                    )}
                                   </div>
                                 </div>
-                              );
-                            })}
+                              </div>
+                            ))}
                           </div>
                         ) : (
                           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">

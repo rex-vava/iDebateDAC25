@@ -29,23 +29,13 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showStats, setShowStats] = useState(false);
-  const { categories } = useCategories();
-  const { vote, hasVoted, getUserVote, getTotalVotes } = useVoting();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { categories, loading: categoriesLoading } = useCategories();
+  const { vote, hasVoted, getUserVote, getTotalVotes, loading: votingLoading } = useVoting();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Performance optimization: Clean up localStorage on app start
   useEffect(() => {
     optimizeLocalStorage();
-  }, []);
-
-  // Listen for category updates
-  useEffect(() => {
-    const handleCategoriesUpdate = () => {
-      setSelectedCategory(null);
-    };
-
-    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
-    return () => window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
   }, []);
 
   // Preload critical resources
@@ -64,8 +54,11 @@ function App() {
     };
   }, []);
 
-  const handleVote = (categoryId: string, nominee: string) => {
-    vote(categoryId, nominee);
+  const handleVote = async (categoryId: string, nomineeId: string, nomineeName: string) => {
+    const success = await vote(categoryId, nomineeId, nomineeName);
+    if (success) {
+      // Vote was successful, modal will update automatically
+    }
   };
 
   const handleAdminClick = () => {
@@ -80,9 +73,9 @@ function App() {
     ? categories.find(cat => cat.id === selectedCategory)
     : null;
 
-  const votableCategories = categories.filter(cat => !cat.isAward);
+  const votableCategories = categories.filter(cat => !cat.is_award);
 
-  if (isLoading) {
+  if (authLoading || categoriesLoading || votingLoading) {
     return <LoadingSpinner />;
   }
 
@@ -122,8 +115,8 @@ function App() {
                       <BarChart3 className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900">Vote Statistics</h3>
-                      <p className="text-sm text-gray-600">Complete voting analytics</p>
+                      <h3 className="text-2xl font-bold text-gray-900">Live Vote Statistics</h3>
+                      <p className="text-sm text-gray-600">Real-time voting analytics from global database</p>
                     </div>
                   </div>
                   <button
@@ -209,8 +202,12 @@ function App() {
               <CategoryCard
                 key={category.id}
                 category={{
-                  ...category,
-                  nominees: category.nominees.map(n => typeof n === 'string' ? n : n.name)
+                  id: category.id,
+                  title: category.title,
+                  icon: category.icon,
+                  description: category.description,
+                  nominees: category.nominees.map(n => n.name),
+                  isAward: category.is_award
                 }}
                 onClick={() => setSelectedCategory(category.id)}
                 hasVoted={hasVoted(category.id)}
@@ -255,16 +252,11 @@ function App() {
         {selectedCategoryData && (
           <Suspense fallback={<LoadingSpinner />}>
             <VotingModal
-              category={{
-                ...selectedCategoryData,
-                nominees: selectedCategoryData.nominees.map(n => typeof n === 'string' ? n : n.name)
-              }}
+              category={selectedCategoryData}
               isOpen={!!selectedCategory}
               onClose={() => setSelectedCategory(null)}
-              onVote={handleVote}
               hasVoted={hasVoted(selectedCategory!)}
               userVote={getUserVote(selectedCategory!)}
-              categoryData={selectedCategoryData}
             />
           </Suspense>
         )}

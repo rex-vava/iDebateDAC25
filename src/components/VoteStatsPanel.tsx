@@ -17,7 +17,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
       voteStats,
       exportDate: new Date().toISOString(),
       totalVotes: Object.values(voteStats).reduce((total, categoryStats) => {
-        return total + Object.values(categoryStats).reduce((sum, count) => sum + count, 0);
+        return total + Object.values(categoryStats).reduce((sum, nominee) => sum + nominee.count, 0);
       }, 0)
     };
     
@@ -39,10 +39,10 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
     let topNominee = '';
     let maxVotes = 0;
     
-    Object.entries(categoryStats).forEach(([nominee, votes]) => {
-      if (votes > maxVotes) {
-        maxVotes = votes;
-        topNominee = nominee;
+    Object.entries(categoryStats).forEach(([nomineeId, nominee]) => {
+      if (nominee.count > maxVotes) {
+        maxVotes = nominee.count;
+        topNominee = nominee.nomineeName;
       }
     });
     
@@ -51,20 +51,20 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
 
   const getTotalSystemVotes = () => {
     return Object.values(voteStats).reduce((total, categoryStats) => {
-      return total + Object.values(categoryStats).reduce((sum, count) => sum + count, 0);
+      return total + Object.values(categoryStats).reduce((sum, nominee) => sum + nominee.count, 0);
     }, 0);
   };
 
-  const getVotingCategories = () => categories.filter(cat => !cat.isAward);
-  const getSpecialAwards = () => categories.filter(cat => cat.isAward);
+  const getVotingCategories = () => categories.filter(cat => !cat.is_award);
+  const getSpecialAwards = () => categories.filter(cat => cat.is_award);
 
   return (
     <div className="space-y-6">
       {/* Header with Export */}
       <div className="flex justify-between items-center">
         <div>
-          <h4 className="text-xl font-semibold text-gray-900">Vote Statistics</h4>
-          <p className="text-gray-600">Complete voting analytics for all categories</p>
+          <h4 className="text-xl font-semibold text-gray-900">Live Vote Statistics</h4>
+          <p className="text-gray-600">Real-time voting analytics from the global database</p>
         </div>
         {showExport && (
           <button
@@ -145,7 +145,6 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
           {getVotingCategories().map((category) => {
             const totalVotes = getTotalCategoryVotes(category.id);
             const topNominee = getTopNominee(category.id);
-            const nominees = category.nominees.map(n => typeof n === 'string' ? n : n.name);
             
             return (
               <div key={category.id} className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
@@ -161,7 +160,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                         Total votes: <span className="text-blue-600">{totalVotes}</span>
                       </span>
                       <span className="text-gray-500">
-                        Nominees: {nominees.length}
+                        Nominees: {category.nominees.length}
                       </span>
                     </div>
                   </div>
@@ -174,16 +173,17 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                   )}
                 </div>
                 
-                {totalVotes > 0 && nominees.length > 0 ? (
+                {totalVotes > 0 && category.nominees.length > 0 ? (
                   <div className="space-y-3">
-                    {nominees.map((nominee) => {
-                      const votes = voteStats[category.id]?.[nominee] || 0;
+                    {category.nominees.map((nominee) => {
+                      const nomineeStats = voteStats[category.id]?.[nominee.id];
+                      const votes = nomineeStats?.count || 0;
                       const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
                       
                       return (
-                        <div key={nominee} className="bg-gray-50 p-3 rounded-lg">
+                        <div key={nominee.id} className="bg-gray-50 p-3 rounded-lg">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="font-medium text-gray-800">{nominee}</span>
+                            <span className="font-medium text-gray-800">{nominee.name}</span>
                             <div className="text-right">
                               <span className="text-sm font-semibold text-gray-700">
                                 {votes} vote{votes !== 1 ? 's' : ''}
@@ -208,7 +208,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                   </div>
                 ) : (
                   <div className="text-center py-6">
-                    {nominees.length === 0 ? (
+                    {category.nominees.length === 0 ? (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <p className="text-yellow-700 font-medium">Awaiting Nominations</p>
                         <p className="text-yellow-600 text-sm mt-1">

@@ -1,46 +1,43 @@
 import React, { useState } from 'react';
 import { X, Vote, Check, User, Award, BarChart3 } from 'lucide-react';
 import { useVoting } from '../hooks/useVoting';
-import { Category } from '../hooks/useCategories';
+import { CategoryWithNominees } from '../hooks/useCategories';
 
 interface VotingModalProps {
-  category: {
-    id: string;
-    title: string;
-    icon: string;
-    description: string;
-    nominees: string[];
-    isAward?: boolean;
-  };
-  categoryData?: Category;
+  category: CategoryWithNominees;
   isOpen: boolean;
   onClose: () => void;
-  onVote: (categoryId: string, nominee: string) => void;
   hasVoted: boolean;
   userVote?: string;
 }
 
 const VotingModal: React.FC<VotingModalProps> = ({
   category,
-  categoryData,
   isOpen,
   onClose,
-  onVote,
   hasVoted,
   userVote
 }) => {
-  const [selectedNominee, setSelectedNominee] = useState<string>('');
+  const [selectedNomineeId, setSelectedNomineeId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getVoteCount, getTotalCategoryVotes } = useVoting();
+  const { vote, getVoteCount, getTotalCategoryVotes } = useVoting();
 
   const handleSubmit = async () => {
-    if (!selectedNominee) return;
+    if (!selectedNomineeId) return;
     
+    const selectedNominee = category.nominees.find(n => n.id === selectedNomineeId);
+    if (!selectedNominee) return;
+
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    onVote(category.id, selectedNominee);
+    const success = await vote(category.id, selectedNomineeId, selectedNominee.name);
+    
+    if (success) {
+      setSelectedNomineeId('');
+      // Modal will automatically update to show voted state
+    } else {
+      alert('Failed to submit vote. Please try again.');
+    }
     setIsSubmitting(false);
-    setSelectedNominee('');
   };
 
   const getInitials = (name: string) => {
@@ -63,18 +60,10 @@ const VotingModal: React.FC<VotingModalProps> = ({
     return gradients[index % gradients.length];
   };
 
-  const getNomineePhoto = (nomineeName: string) => {
-    if (!categoryData) return null;
-    const nominee = categoryData.nominees.find(n => 
-      (typeof n === 'string' ? n : n.name) === nomineeName
-    );
-    return nominee && typeof nominee !== 'string' ? nominee.photo : null;
-  };
-
   if (!isOpen) return null;
 
   // Special handling for award categories
-  if (category.isAward) {
+  if (category.is_award) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
@@ -162,19 +151,18 @@ const VotingModal: React.FC<VotingModalProps> = ({
               </h4>
               <div className="grid gap-4">
                 {category.nominees.map((nominee, index) => {
-                  const voteCount = getVoteCount(category.id, nominee);
+                  const voteCount = getVoteCount(category.id, nominee.id);
                   const votePercentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
-                  const nomineePhoto = getNomineePhoto(nominee);
                   
                   return (
                     <label
-                      key={index}
+                      key={nominee.id}
                       className={`block border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
-                        selectedNominee === nominee
+                        selectedNomineeId === nominee.id
                           ? 'border-orange-500 bg-orange-50 shadow-lg'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      style={selectedNominee === nominee ? {
+                      style={selectedNomineeId === nominee.id ? {
                         borderColor: '#eb754f',
                         backgroundColor: '#fff7ed'
                       } : {}}
@@ -182,19 +170,19 @@ const VotingModal: React.FC<VotingModalProps> = ({
                       <input
                         type="radio"
                         name="nominee"
-                        value={nominee}
-                        checked={selectedNominee === nominee}
-                        onChange={(e) => setSelectedNominee(e.target.value)}
+                        value={nominee.id}
+                        checked={selectedNomineeId === nominee.id}
+                        onChange={(e) => setSelectedNomineeId(e.target.value)}
                         className="sr-only"
                       />
                       <div className="p-4">
                         <div className="flex items-center gap-4 mb-3">
                           {/* Photo Section */}
                           <div className="flex-shrink-0">
-                            {nomineePhoto ? (
+                            {nominee.photo ? (
                               <img 
-                                src={nomineePhoto}
-                                alt={nominee}
+                                src={nominee.photo}
+                                alt={nominee.name}
                                 className="w-16 h-16 rounded-full object-cover shadow-lg border-2 border-gray-200"
                               />
                             ) : (
@@ -202,7 +190,7 @@ const VotingModal: React.FC<VotingModalProps> = ({
                                 className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-2 border-gray-200"
                                 style={{ background: getRandomGradient(index) }}
                               >
-                                {getInitials(nominee)}
+                                {getInitials(nominee.name)}
                               </div>
                             )}
                           </div>
@@ -210,7 +198,7 @@ const VotingModal: React.FC<VotingModalProps> = ({
                           {/* Nominee Info */}
                           <div className="flex-grow">
                             <h5 className="text-lg font-semibold text-gray-900 mb-1">
-                              {nominee}
+                              {nominee.name}
                             </h5>
                             <div className="flex items-center text-sm text-gray-500">
                               <User className="w-4 h-4 mr-1" />
@@ -225,7 +213,7 @@ const VotingModal: React.FC<VotingModalProps> = ({
                                 {voteCount} {voteCount === 1 ? 'vote' : 'votes'} ({votePercentage.toFixed(1)}%)
                               </div>
                             )}
-                            {selectedNominee === nominee && (
+                            {selectedNomineeId === nominee.id && (
                               <div 
                                 className="w-6 h-6 rounded-full flex items-center justify-center"
                                 style={{ backgroundColor: '#eb754f' }}
@@ -258,12 +246,13 @@ const VotingModal: React.FC<VotingModalProps> = ({
                 <button
                   onClick={onClose}
                   className="px-6 py-3 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={!selectedNominee || isSubmitting}
+                  disabled={!selectedNomineeId || isSubmitting}
                   className="px-6 py-3 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   style={{
                     background: 'linear-gradient(to right, #eb754f, #f4be68)'
