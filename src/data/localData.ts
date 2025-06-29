@@ -42,19 +42,10 @@ export const defaultCategories: Category[] = [
     updatedAt: new Date().toISOString()
   },
   {
-    id: 'execution-excellence',
-    title: 'Execution Excellence Award',
-    icon: '⚡',
-    description: 'Outstanding Project Implementation and Leadership',
-    isAward: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'best-coordinator',
-    title: 'Best Camp Coordinator',
-    icon: '🏕️',
-    description: 'Based on camper feedback, leadership, and dedication',
+    id: 'best-camp-director',
+    title: 'Best Camp Director',
+    icon: '🎯',
+    description: 'Outstanding leadership and vision in camp direction',
     isAward: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -132,9 +123,9 @@ export const defaultCategories: Category[] = [
     updatedAt: new Date().toISOString()
   },
   {
-    id: 'involved-alumni',
-    title: 'Most Involved Alumni',
-    icon: '🔄',
+    id: 'alumni-decade',
+    title: 'Alumni of the Decade',
+    icon: '🎓',
     description: 'Alumni who consistently returned to support and mentor',
     isAward: false,
     createdAt: new Date().toISOString(),
@@ -148,64 +139,71 @@ export const defaultCategories: Category[] = [
     isAward: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'execution-excellence',
+    title: 'Execution Excellence Award',
+    icon: '⚡',
+    description: 'Outstanding Project Implementation and Leadership',
+    isAward: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ];
 
-// Default nominees data
+// Default nominees data with all the provided nominees
 export const defaultNominees: Nominee[] = [
-  // Execution Excellence Award
+  // Best Camp Director
   {
-    id: 'exec-1',
-    categoryId: 'execution-excellence',
-    name: 'KALISA Danny',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'exec-2',
-    categoryId: 'execution-excellence',
+    id: 'director-1',
+    categoryId: 'best-camp-director',
     name: 'Ornella TUZA',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
-    id: 'exec-3',
-    categoryId: 'execution-excellence',
-    name: 'Emma Victor',
+    id: 'director-2',
+    categoryId: 'best-camp-director',
+    name: 'Angelo Urukundo',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
-    id: 'exec-4',
-    categoryId: 'execution-excellence',
-    name: 'Lucas SHEMA',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  
-  // Best Camp Coordinator
-  {
-    id: 'coord-1',
-    categoryId: 'best-coordinator',
-    name: 'Ornella TUZA',
+    id: 'director-3',
+    categoryId: 'best-camp-director',
+    name: 'Wesley',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
-    id: 'coord-2',
-    categoryId: 'best-coordinator',
-    name: 'KALISA Danny',
+    id: 'director-4',
+    categoryId: 'best-camp-director',
+    name: 'Amanda',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
-    id: 'coord-3',
-    categoryId: 'best-coordinator',
-    name: 'Angelo URUKUNDO',
+    id: 'director-5',
+    categoryId: 'best-camp-director',
+    name: 'Nelson',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
-  
+  {
+    id: 'director-6',
+    categoryId: 'best-camp-director',
+    name: 'Bangaly',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'director-7',
+    categoryId: 'best-camp-director',
+    name: 'Bruce Jesh',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+
   // Top Host Venue
   {
     id: 'venue-1',
@@ -224,99 +222,99 @@ export const defaultNominees: Nominee[] = [
   {
     id: 'venue-3',
     categoryId: 'top-venue',
+    name: 'Saint Vincent Muhoza',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'venue-4',
+    categoryId: 'top-venue',
     name: 'Gashora Girls Academy',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
-  
+
   // Volunteer Intake of the Decade
   {
     id: 'vol-1',
     categoryId: 'volunteer-intake',
-    name: 'iVolunteer \'25',
+    name: 'iVolunteer \'2024-25',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'vol-2',
     categoryId: 'volunteer-intake',
-    name: 'iVolunteer \'24',
+    name: 'iVolunteer \'2023-24',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'vol-3',
     categoryId: 'volunteer-intake',
-    name: 'iVolunteer \'23',
+    name: 'iVolunteer \'2022-23',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'vol-4',
     categoryId: 'volunteer-intake',
-    name: 'iVolunteer \'22',
+    name: 'iVolunteer \'2021-22',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
-  
+
   // Mentor of the Decade
   {
     id: 'mentor-1',
     categoryId: 'mentor-decade',
-    name: 'Brenna AKARABO',
+    name: 'Karema Teta Shamira',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'mentor-2',
     categoryId: 'mentor-decade',
-    name: 'Shamila KAREMA',
+    name: 'Emma Victor',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'mentor-3',
     categoryId: 'mentor-decade',
-    name: 'Emma Victor',
+    name: 'Keza Kestia',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'mentor-4',
     categoryId: 'mentor-decade',
-    name: 'Ruth JURU',
+    name: 'Lucas Shema',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'mentor-5',
     categoryId: 'mentor-decade',
-    name: 'Queen KABANDANA',
+    name: 'Queen Kabandana',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'mentor-6',
     categoryId: 'mentor-decade',
-    name: 'Lucas SHEMA',
+    name: 'Joana Byumvohore',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'mentor-7',
     categoryId: 'mentor-decade',
-    name: 'Bonfils RUKUNDO',
+    name: 'Ally hamis Rwemera',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
-  {
-    id: 'mentor-8',
-    categoryId: 'mentor-decade',
-    name: 'Joana BYUMVUHORE',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  
+
   // Best Afternoon Class
   {
     id: 'class-1',
@@ -328,7 +326,7 @@ export const defaultNominees: Nominee[] = [
   {
     id: 'class-2',
     categoryId: 'afternoon-class',
-    name: 'Creative Writing',
+    name: 'Creative writing',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -342,25 +340,18 @@ export const defaultNominees: Nominee[] = [
   {
     id: 'class-4',
     categoryId: 'afternoon-class',
-    name: 'Art Class',
+    name: 'Art class',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'class-5',
     categoryId: 'afternoon-class',
-    name: 'Leveraging AI',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'class-6',
-    categoryId: 'afternoon-class',
     name: 'Leadership Nexus',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
-  
+
   // The Partner's Spotlight
   {
     id: 'partner-1',
@@ -390,7 +381,107 @@ export const defaultNominees: Nominee[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
-  
+  {
+    id: 'partner-5',
+    categoryId: 'partners-spotlight',
+    name: 'Vanderbilt',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'partner-6',
+    categoryId: 'partners-spotlight',
+    name: 'Weber state university',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'partner-7',
+    categoryId: 'partners-spotlight',
+    name: 'Never Again',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+
+  // Dreamer of the Decade
+  {
+    id: 'dreamer-1',
+    categoryId: 'dreamer-decade',
+    name: 'KALISA Danny',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-2',
+    categoryId: 'dreamer-decade',
+    name: 'Rukundo Bonfils',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-3',
+    categoryId: 'dreamer-decade',
+    name: 'Abi benie',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-4',
+    categoryId: 'dreamer-decade',
+    name: 'Eva',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-5',
+    categoryId: 'dreamer-decade',
+    name: 'Christelle Maiga',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-6',
+    categoryId: 'dreamer-decade',
+    name: 'Ndahiro Clever',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-7',
+    categoryId: 'dreamer-decade',
+    name: 'King Kitoko',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-8',
+    categoryId: 'dreamer-decade',
+    name: 'Karenzi Boris',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-9',
+    categoryId: 'dreamer-decade',
+    name: 'Christian Bahire',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-10',
+    categoryId: 'dreamer-decade',
+    name: 'Ornella Ikirezi Tuza',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'dreamer-11',
+    categoryId: 'dreamer-decade',
+    name: 'Sonia NYANTABA',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+
   // Face of the Dreamers
   {
     id: 'face-1',
@@ -413,26 +504,270 @@ export const defaultNominees: Nominee[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
-  
+  {
+    id: 'face-4',
+    categoryId: 'face-dreamers',
+    name: 'Ashley Mutoni',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+
   // Hype Maker of the Decade
   {
     id: 'hype-1',
     categoryId: 'hype-maker',
-    name: 'Kendy',
+    name: 'Cyimana',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'hype-2',
     categoryId: 'hype-maker',
-    name: 'La Tasha',
+    name: 'Lebon',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 'hype-3',
     categoryId: 'hype-maker',
-    name: 'Abi',
+    name: 'Uwase LaTasha Muganga',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'hype-4',
+    categoryId: 'hype-maker',
+    name: 'Wesley',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'hype-5',
+    categoryId: 'hype-maker',
+    name: 'Bangaly',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'hype-6',
+    categoryId: 'hype-maker',
+    name: 'Nelson',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'hype-7',
+    categoryId: 'hype-maker',
+    name: 'Jesh',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+
+  // Alumni of the Decade
+  {
+    id: 'alumni-1',
+    categoryId: 'alumni-decade',
+    name: 'Kalisa Danny',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-2',
+    categoryId: 'alumni-decade',
+    name: 'Kirenga Sherif',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-3',
+    categoryId: 'alumni-decade',
+    name: 'Minega Jerry',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-4',
+    categoryId: 'alumni-decade',
+    name: 'Iriza Jade',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-5',
+    categoryId: 'alumni-decade',
+    name: 'Gloria munana',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-6',
+    categoryId: 'alumni-decade',
+    name: 'Ingride cyuzuzo',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-7',
+    categoryId: 'alumni-decade',
+    name: 'Dadi',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-8',
+    categoryId: 'alumni-decade',
+    name: 'Captain Franck',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-9',
+    categoryId: 'alumni-decade',
+    name: 'Jean David Tuyishime',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-10',
+    categoryId: 'alumni-decade',
+    name: 'Diakite Bangaly',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'alumni-11',
+    categoryId: 'alumni-decade',
+    name: 'Christian Bahire',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+
+  // Dream Creator of the Decade
+  {
+    id: 'creator-1',
+    categoryId: 'dream-creator',
+    name: 'Ngoga Guillaume',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'creator-2',
+    categoryId: 'dream-creator',
+    name: 'Dave Hemsworth',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'creator-3',
+    categoryId: 'dream-creator',
+    name: 'Lebon Israel',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'creator-4',
+    categoryId: 'dream-creator',
+    name: 'Babu',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'creator-5',
+    categoryId: 'dream-creator',
+    name: 'BETA',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'creator-6',
+    categoryId: 'dream-creator',
+    name: 'JayD',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'creator-7',
+    categoryId: 'dream-creator',
+    name: 'Kingly Diakite',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+
+  // Execution Excellence Award
+  {
+    id: 'exec-1',
+    categoryId: 'execution-excellence',
+    name: 'Danny Kalisa',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-2',
+    categoryId: 'execution-excellence',
+    name: 'Abi Benie Umwari',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-3',
+    categoryId: 'execution-excellence',
+    name: 'Asingizwe Joie Colette',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-4',
+    categoryId: 'execution-excellence',
+    name: 'Arsene Maurice',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-5',
+    categoryId: 'execution-excellence',
+    name: 'Hakidu Shema',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-6',
+    categoryId: 'execution-excellence',
+    name: 'Ornella Ikirezi',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-7',
+    categoryId: 'execution-excellence',
+    name: 'Kitoko',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-8',
+    categoryId: 'execution-excellence',
+    name: 'Mutezintare Isimbi Sumaya',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-9',
+    categoryId: 'execution-excellence',
+    name: 'Mfuranzima Divin',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-10',
+    categoryId: 'execution-excellence',
+    name: 'Abatesi Nadine',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'exec-11',
+    categoryId: 'execution-excellence',
+    name: 'Cyuzuzo Kendy',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
