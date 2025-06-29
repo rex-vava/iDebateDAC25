@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
-import { 
-  Category, 
-  Nominee, 
-  initializeLocalData, 
-  getFromStorage, 
-  setToStorage, 
-  STORAGE_KEYS 
-} from '../data/localData';
-import type { CategoryWithNominees } from '../data/localData';
+import { supabase, Category, Nominee } from '../lib/supabase';
 
-export type { CategoryWithNominees };
+export interface CategoryWithNominees extends Category {
+  nominees: Array<{
+    id: string;
+    name: string;
+    photo?: string;
+  }>;
+}
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<CategoryWithNominees[]>([]);
@@ -19,23 +17,29 @@ export const useCategories = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      setError(null);
       
-      // Initialize local storage if needed
-      initializeLocalData();
-      
-      // Get categories and nominees from local storage
-      const categoriesData: Category[] = getFromStorage(STORAGE_KEYS.CATEGORIES, []);
-      const nomineesData: Nominee[] = getFromStorage(STORAGE_KEYS.NOMINEES, []);
-      
-      // Combine categories with their nominees
-      const formattedCategories: CategoryWithNominees[] = categoriesData.map(category => ({
-        ...category,
-        is_award: category.isAward, // Map for compatibility
-        nominees: nomineesData.filter(nominee => nominee.categoryId === category.id)
-      }));
+      // Fetch categories with their nominees
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select(`
+          *,
+          nominees (
+            id,
+            name,
+            photo
+          )
+        `)
+        .order('created_at');
+
+      if (categoriesError) throw categoriesError;
+
+      const formattedCategories = categoriesData?.map(cat => ({
+        ...cat,
+        nominees: cat.nominees || []
+      })) || [];
 
       setCategories(formattedCategories);
+      setError(null);
     } catch (err) {
       console.error('Error fetching categories:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch categories');
@@ -46,26 +50,44 @@ export const useCategories = () => {
 
   useEffect(() => {
     fetchCategories();
+
+    // Set up real-time subscriptions for instant updates
+    const categoriesSubscription = supabase
+      .channel('categories-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'categories' },
+        (payload) => {
+          console.log('Categories updated:', payload);
+          fetchCategories();
+        }
+      )
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'nominees' },
+        (payload) => {
+          console.log('Nominees updated:', payload);
+          fetchCategories();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      categoriesSubscription.unsubscribe();
+    };
   }, []);
 
   const addNominee = async (categoryId: string, nominee: { name: string; photo?: string }) => {
     try {
-      const nominees: Nominee[] = getFromStorage(STORAGE_KEYS.NOMINEES, []);
+      const { error } = await supabase
+        .from('nominees')
+        .insert({
+          category_id: categoryId,
+          name: nominee.name.trim(),
+          photo: nominee.photo || null
+        });
+
+      if (error) throw error;
       
-      const newNominee: Nominee = {
-        id: `nominee_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        categoryId,
-        name: nominee.name.trim(),
-        photo: nominee.photo,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      const updatedNominees = [...nominees, newNominee];
-      setToStorage(STORAGE_KEYS.NOMINEES, updatedNominees);
-      
-      // Refresh categories
-      await fetchCategories();
+      // Real-time subscription will automatically update the UI
       return true;
     } catch (err) {
       console.error('Error adding nominee:', err);
@@ -76,17 +98,14 @@ export const useCategories = () => {
 
   const removeNominee = async (categoryId: string, nomineeId: string) => {
     try {
-      const nominees: Nominee[] = getFromStorage(STORAGE_KEYS.NOMINEES, []);
-      const updatedNominees = nominees.filter(nominee => nominee.id !== nomineeId);
-      setToStorage(STORAGE_KEYS.NOMINEES, updatedNominees);
+      const { error } = await supabase
+        .from('nominees')
+        .delete()
+        .eq('id', nomineeId);
+
+      if (error) throw error;
       
-      // Also remove any votes for this nominee
-      const votes = getFromStorage(STORAGE_KEYS.VOTES, []);
-      const updatedVotes = votes.filter((vote: any) => vote.nomineeId !== nomineeId);
-      setToStorage(STORAGE_KEYS.VOTES, updatedVotes);
-      
-      // Refresh categories
-      await fetchCategories();
+      // Real-time subscription will automatically update the UI
       return true;
     } catch (err) {
       console.error('Error removing nominee:', err);
@@ -97,16 +116,17 @@ export const useCategories = () => {
 
   const updateNomineePhoto = async (nomineeId: string, photo: string) => {
     try {
-      const nominees: Nominee[] = getFromStorage(STORAGE_KEYS.NOMINEES, []);
-      const updatedNominees = nominees.map(nominee => 
-        nominee.id === nomineeId 
-          ? { ...nominee, photo: photo || undefined, updatedAt: new Date().toISOString() }
-          : nominee
-      );
-      setToStorage(STORAGE_KEYS.NOMINEES, updatedNominees);
+      const { error } = await supabase
+        .from('nominees')
+        .update({ 
+          photo: photo || null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', nomineeId);
+
+      if (error) throw error;
       
-      // Refresh categories
-      await fetchCategories();
+      // Real-time subscription will automatically update the UI
       return true;
     } catch (err) {
       console.error('Error updating nominee photo:', err);
@@ -117,16 +137,17 @@ export const useCategories = () => {
 
   const updateCategory = async (categoryId: string, updates: Partial<Category>) => {
     try {
-      const categories: Category[] = getFromStorage(STORAGE_KEYS.CATEGORIES, []);
-      const updatedCategories = categories.map(category => 
-        category.id === categoryId 
-          ? { ...category, ...updates, updatedAt: new Date().toISOString() }
-          : category
-      );
-      setToStorage(STORAGE_KEYS.CATEGORIES, updatedCategories);
+      const { error } = await supabase
+        .from('categories')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', categoryId);
+
+      if (error) throw error;
       
-      // Refresh categories
-      await fetchCategories();
+      // Real-time subscription will automatically update the UI
       return true;
     } catch (err) {
       console.error('Error updating category:', err);
