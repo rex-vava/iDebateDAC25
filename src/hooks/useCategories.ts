@@ -9,7 +9,7 @@ import {
   STORAGE_KEYS 
 } from '../data/localData';
 
-export { CategoryWithNominees };
+export { type CategoryWithNominees };
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<CategoryWithNominees[]>([]);

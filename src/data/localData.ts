@@ -27,6 +27,7 @@ export interface Vote {
 
 export interface CategoryWithNominees extends Category {
   nominees: Nominee[];
+  is_award: boolean; // Add compatibility field
 }
 
 // Default categories data
