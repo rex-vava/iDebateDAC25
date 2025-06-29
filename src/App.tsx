@@ -12,14 +12,15 @@ import { useCategories } from './hooks/useCategories';
 import { useVoting } from './hooks/useVoting';
 import { useAuth } from './hooks/useAuth';
 import { optimizeLocalStorage } from './utils/performance';
-import { Trophy, Users, Award, Settings, BarChart3 } from 'lucide-react';
+import { Trophy, Users, Award, Settings, BarChart3, Wifi, Database } from 'lucide-react';
 
 // Loading component
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50 flex items-center justify-center">
     <div className="text-center">
       <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-600">Loading...</p>
+      <p className="text-gray-600">Loading voting platform...</p>
+      <p className="text-sm text-gray-500 mt-2">Initializing local database</p>
     </div>
   </div>
 );
@@ -84,6 +85,26 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50">
         <Header />
         
+        {/* System Status Banner */}
+        <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <Database className="w-4 h-4" />
+                <span className="font-medium">Local Database Active</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Wifi className="w-4 h-4" />
+                <span>Works Offline & Online</span>
+              </div>
+              <div className="hidden md:flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                <span>Real-time Voting System</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         {/* Admin Toggle */}
         <div className="fixed top-4 right-4 z-40 flex gap-2">
           <button
@@ -116,7 +137,7 @@ function App() {
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900">Live Vote Statistics</h3>
-                      <p className="text-sm text-gray-600">Real-time voting analytics from global database</p>
+                      <p className="text-sm text-gray-600">Real-time voting analytics from local database</p>
                     </div>
                   </div>
                   <button
@@ -160,6 +181,27 @@ function App() {
             <p className="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
               This special night is not only a reunion and a celebration — it's your chance to honor the legends, leaders, and unforgettable moments of the past decade. As we prepare to expand the Dream to Uganda or Juba in 2026, your vote helps recognize those who made this journey possible.
             </p>
+            
+            {/* Local System Benefits */}
+            <div className="mt-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+              <h3 className="text-lg font-semibold text-green-800 mb-3">
+                🌍 Global Access • 📱 Works Everywhere • ⚡ Lightning Fast
+              </h3>
+              <div className="grid md:grid-cols-3 gap-4 text-sm text-green-700">
+                <div className="flex items-center gap-2">
+                  <Database className="w-4 h-4" />
+                  <span>Local database - no internet required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Wifi className="w-4 h-4" />
+                  <span>Works on any device worldwide</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4" />
+                  <span>Photos stored locally for speed</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Stats */}

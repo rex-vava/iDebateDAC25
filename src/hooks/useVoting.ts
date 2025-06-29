@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { supabase, getVoterId } from '../lib/supabase';
+import { 
+  Vote, 
+  getVoterId, 
+  getFromStorage, 
+  setToStorage, 
+  STORAGE_KEYS 
+} from '../data/localData';
 
 interface VoteStats {
   [categoryId: string]: {
@@ -29,43 +35,35 @@ export const useVoting = () => {
     try {
       setLoading(true);
 
-      // Fetch all votes with nominee information
-      const { data: votesData, error: votesError } = await supabase
-        .from('votes')
-        .select(`
-          *,
-          nominees (
-            id,
-            name
-          )
-        `);
-
-      if (votesError) throw votesError;
+      // Get votes and nominees from local storage
+      const votes: Vote[] = getFromStorage(STORAGE_KEYS.VOTES, []);
+      const nominees = getFromStorage(STORAGE_KEYS.NOMINEES, []);
 
       // Process vote statistics
       const stats: VoteStats = {};
       const userVotesData: UserVotes = {};
 
-      votesData?.forEach(vote => {
-        const { category_id, nominee_id, voter_id, nominees } = vote;
-        const nomineeName = nominees?.name || 'Unknown';
+      votes.forEach(vote => {
+        const { categoryId, nomineeId, voterId: voteVoterId } = vote;
+        const nominee = nominees.find((n: any) => n.id === nomineeId);
+        const nomineeName = nominee?.name || 'Unknown';
 
         // Build vote statistics
-        if (!stats[category_id]) {
-          stats[category_id] = {};
+        if (!stats[categoryId]) {
+          stats[categoryId] = {};
         }
-        if (!stats[category_id][nominee_id]) {
-          stats[category_id][nominee_id] = {
+        if (!stats[categoryId][nomineeId]) {
+          stats[categoryId][nomineeId] = {
             count: 0,
             nomineeName
           };
         }
-        stats[category_id][nominee_id].count++;
+        stats[categoryId][nomineeId].count++;
 
         // Track current user's votes
-        if (voter_id === voterId) {
-          userVotesData[category_id] = {
-            nomineeId: nominee_id,
+        if (voteVoterId === voterId) {
+          userVotesData[categoryId] = {
+            nomineeId,
             nomineeName
           };
         }
@@ -84,48 +82,38 @@ export const useVoting = () => {
 
   useEffect(() => {
     fetchVoteData();
-
-    // Set up real-time subscription for votes
-    const votesSubscription = supabase
-      .channel('votes-changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'votes' },
-        () => fetchVoteData()
-      )
-      .subscribe();
-
-    return () => {
-      votesSubscription.unsubscribe();
-    };
   }, [voterId]);
 
   const vote = async (categoryId: string, nomineeId: string, nomineeName: string) => {
     try {
-      // Check if user already voted in this category
-      const existingVote = userVotes[categoryId];
+      const votes: Vote[] = getFromStorage(STORAGE_KEYS.VOTES, []);
       
-      if (existingVote) {
+      // Check if user already voted in this category
+      const existingVoteIndex = votes.findIndex(
+        vote => vote.categoryId === categoryId && vote.voterId === voterId
+      );
+      
+      if (existingVoteIndex >= 0) {
         // Update existing vote
-        const { error } = await supabase
-          .from('votes')
-          .update({ nominee_id: nomineeId })
-          .eq('category_id', categoryId)
-          .eq('voter_id', voterId);
-
-        if (error) throw error;
+        votes[existingVoteIndex] = {
+          ...votes[existingVoteIndex],
+          nomineeId,
+          createdAt: new Date().toISOString()
+        };
       } else {
-        // Insert new vote
-        const { error } = await supabase
-          .from('votes')
-          .insert({
-            category_id: categoryId,
-            nominee_id: nomineeId,
-            voter_id: voterId
-          });
-
-        if (error) throw error;
+        // Add new vote
+        const newVote: Vote = {
+          id: `vote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          categoryId,
+          nomineeId,
+          voterId,
+          createdAt: new Date().toISOString()
+        };
+        votes.push(newVote);
       }
 
+      setToStorage(STORAGE_KEYS.VOTES, votes);
+      
       // Refresh vote data
       await fetchVoteData();
       return true;
