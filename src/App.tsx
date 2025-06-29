@@ -38,22 +38,6 @@ function App() {
     optimizeLocalStorage();
   }, []);
 
-  // Preload critical resources
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'font';
-    link.type = 'font/woff2';
-    link.crossOrigin = 'anonymous';
-    document.head.appendChild(link);
-
-    return () => {
-      if (document.head.contains(link)) {
-        document.head.removeChild(link);
-      }
-    };
-  }, []);
-
   const handleVote = async (categoryId: string, nomineeId: string, nomineeName: string) => {
     const success = await vote(categoryId, nomineeId, nomineeName);
     if (success) {
