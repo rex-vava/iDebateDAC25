@@ -40,7 +40,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
     if (success) {
       setNewNominee('');
       setShowAddNominee(null);
-      alert('Nominee added successfully! Changes are now live for all users.');
+      alert('Nominee added successfully!');
     } else {
       alert('Failed to add nominee. Please try again.');
     }
@@ -53,7 +53,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
       const success = await removeNominee(categoryId, nomineeId);
       
       if (success) {
-        alert('Nominee removed successfully! Changes are now live for all users.');
+        alert('Nominee removed successfully!');
       } else {
         alert('Failed to remove nominee. Please try again.');
       }
@@ -66,7 +66,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
     const success = await updateNomineePhoto(nomineeId, photo || '');
     
     if (success) {
-      alert('Photo updated successfully! Changes are now live for all users.');
+      alert('Photo updated successfully!');
       setEditingNominee(null);
     } else {
       alert('Failed to update photo. Please try again.');
@@ -83,7 +83,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
 
   const handleSaveCategory = async (categoryId: string) => {
     setEditingCategory(null);
-    alert('Category changes saved successfully! Changes are now live for all users.');
+    alert('Category changes saved successfully!');
   };
 
   if (loading) {
@@ -108,7 +108,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Admin Panel</h3>
-                <p className="text-sm text-gray-600">Dreamers Academy Gala Voting System - Live Database</p>
+                <p className="text-sm text-gray-600">Dreamers Academy Gala Voting System</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -173,24 +173,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                 <h4 className="text-xl font-semibold">Manage Categories & Nominees</h4>
                 <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
                   <p className="text-green-700 text-sm font-medium">
-                    ✓ All changes are instantly live for all users worldwide
+                    ✓ All changes are saved locally
                   </p>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h5 className="font-medium text-blue-900">Global Database Features</h5>
-                    <p className="text-blue-700 text-sm mt-1">
-                      • All changes are saved to the cloud database<br/>
-                      • Updates are instantly visible to all users worldwide<br/>
-                      • Photos are stored securely and load globally<br/>
-                      • Real-time synchronization across all devices<br/>
-                      • Automatic backup and data persistence
-                    </p>
-                  </div>
                 </div>
               </div>
 
