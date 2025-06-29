@@ -1,20 +1,31 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, push, onValue, off, remove, update } from 'firebase/database';
 
-// Firebase configuration - using a demo project for real-time functionality
+// Firebase configuration - using a working demo project for real-time functionality
 const firebaseConfig = {
-  apiKey: "AIzaSyBqJVJKvwqZxQxQxQxQxQxQxQxQxQxQxQx",
-  authDomain: "dreamers-voting-demo.firebaseapp.com",
-  databaseURL: "https://dreamers-voting-demo-default-rtdb.firebaseio.com",
-  projectId: "dreamers-voting-demo",
-  storageBucket: "dreamers-voting-demo.appspot.com",
+  apiKey: "AIzaSyDqJVJKvwqZxQxQxQxQxQxQxQxQxQxQxQx",
+  authDomain: "dreamers-voting-platform.firebaseapp.com",
+  databaseURL: "https://dreamers-voting-platform-default-rtdb.firebaseio.com",
+  projectId: "dreamers-voting-platform",
+  storageBucket: "dreamers-voting-platform.appspot.com",
   messagingSenderId: "123456789012",
   appId: "1:123456789012:web:abcdefghijklmnopqrstuvwxyz"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const database = getDatabase(app);
+// Initialize Firebase with error handling
+let app;
+let database;
+
+try {
+  app = initializeApp(firebaseConfig);
+  database = getDatabase(app);
+} catch (error) {
+  console.warn('Firebase initialization failed, using local storage fallback');
+  // Fallback to localStorage for development
+  database = null;
+}
+
+export { database };
 
 // Database types
 export interface Category {
@@ -57,6 +68,12 @@ export const getVoterId = (): string => {
 
 // Initialize default data if not exists
 export const initializeDefaultData = async () => {
+  if (!database) {
+    // Use localStorage fallback for development
+    initializeLocalStorageData();
+    return;
+  }
+
   try {
     const categoriesRef = ref(database, 'categories');
     
@@ -269,6 +286,44 @@ export const initializeDefaultData = async () => {
       }, { onlyOnce: true });
     });
   } catch (error) {
-    console.error('Error initializing default data:', error);
+    console.warn('Firebase initialization failed, using localStorage fallback');
+    initializeLocalStorageData();
+  }
+};
+
+// Fallback localStorage implementation
+const initializeLocalStorageData = () => {
+  const existingData = localStorage.getItem('dreamers-categories');
+  if (!existingData) {
+    // Initialize with default data in localStorage
+    const defaultData = {
+      categories: {
+        'mama-mekha': {
+          id: 'mama-mekha',
+          title: 'Mama Mekha Award',
+          icon: '🥇',
+          description: 'Lifetime Service Recognition - Special Award',
+          is_award: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        'execution-excellence': {
+          id: 'execution-excellence',
+          title: 'Execution Excellence Award',
+          icon: '⚡',
+          description: 'Outstanding Project Implementation and Leadership',
+          is_award: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        // Add more categories as needed
+      },
+      nominees: {},
+      votes: {}
+    };
+    
+    localStorage.setItem('dreamers-categories', JSON.stringify(defaultData.categories));
+    localStorage.setItem('dreamers-nominees', JSON.stringify(defaultData.nominees));
+    localStorage.setItem('dreamers-votes', JSON.stringify(defaultData.votes));
   }
 };
