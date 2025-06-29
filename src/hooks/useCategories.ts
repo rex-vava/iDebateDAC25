@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { database, Category, Nominee, initializeDefaultData } from '../lib/firebase';
+import { database, Category, Nominee, initializeDefaultData, localStorageHelpers, useLocalStorage } from '../lib/firebase';
 import { ref, onValue, off, set, push, update, remove } from 'firebase/database';
 
 export interface CategoryWithNominees extends Category {
@@ -20,10 +20,31 @@ export const useCategories = () => {
       try {
         setLoading(true);
         
-        // Initialize default data if needed
+        // Initialize default data
         await initializeDefaultData();
         
-        // Set up real-time listeners
+        if (useLocalStorage || !database) {
+          // Use localStorage fallback
+          const categoriesData = localStorageHelpers.getCategories();
+          const nomineesData = localStorageHelpers.getNominees();
+          
+          const formattedCategories = Object.values(categoriesData).map(cat => ({
+            ...cat,
+            nominees: Object.values(nomineesData)
+              .filter(nominee => nominee.category_id === cat.id)
+              .map(nominee => ({
+                id: nominee.id,
+                name: nominee.name,
+                photo: nominee.photo
+              }))
+          }));
+          
+          setCategories(formattedCategories);
+          setLoading(false);
+          return;
+        }
+        
+        // Use Firebase with real-time updates
         const categoriesRef = ref(database, 'categories');
         const nomineesRef = ref(database, 'nominees');
         
@@ -81,15 +102,36 @@ export const useCategories = () => {
 
     // Cleanup listeners on unmount
     return () => {
-      const categoriesRef = ref(database, 'categories');
-      const nomineesRef = ref(database, 'nominees');
-      off(categoriesRef);
-      off(nomineesRef);
+      if (database) {
+        const categoriesRef = ref(database, 'categories');
+        const nomineesRef = ref(database, 'nominees');
+        off(categoriesRef);
+        off(nomineesRef);
+      }
     };
   }, []);
 
   const addNominee = async (categoryId: string, nominee: { name: string; photo?: string }) => {
     try {
+      if (useLocalStorage || !database) {
+        // Use localStorage
+        const nominees = localStorageHelpers.getNominees();
+        const id = `nominee_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        nominees[id] = {
+          id,
+          category_id: categoryId,
+          name: nominee.name.trim(),
+          photo: nominee.photo || undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        localStorageHelpers.setNominees(nominees);
+        
+        // Trigger re-fetch
+        window.location.reload();
+        return true;
+      }
+
       const nomineesRef = ref(database, 'nominees');
       const newNomineeRef = push(nomineesRef);
       
@@ -112,6 +154,26 @@ export const useCategories = () => {
 
   const removeNominee = async (categoryId: string, nomineeId: string) => {
     try {
+      if (useLocalStorage || !database) {
+        // Use localStorage
+        const nominees = localStorageHelpers.getNominees();
+        delete nominees[nomineeId];
+        localStorageHelpers.setNominees(nominees);
+        
+        // Remove votes for this nominee
+        const votes = localStorageHelpers.getVotes();
+        Object.keys(votes).forEach(voteKey => {
+          if (votes[voteKey].nominee_id === nomineeId) {
+            delete votes[voteKey];
+          }
+        });
+        localStorageHelpers.setVotes(votes);
+        
+        // Trigger re-fetch
+        window.location.reload();
+        return true;
+      }
+
       const nomineeRef = ref(database, `nominees/${nomineeId}`);
       await remove(nomineeRef);
       
@@ -143,6 +205,20 @@ export const useCategories = () => {
 
   const updateNomineePhoto = async (nomineeId: string, photo: string) => {
     try {
+      if (useLocalStorage || !database) {
+        // Use localStorage
+        const nominees = localStorageHelpers.getNominees();
+        if (nominees[nomineeId]) {
+          nominees[nomineeId].photo = photo || undefined;
+          nominees[nomineeId].updated_at = new Date().toISOString();
+          localStorageHelpers.setNominees(nominees);
+          
+          // Trigger re-fetch
+          window.location.reload();
+        }
+        return true;
+      }
+
       const nomineeRef = ref(database, `nominees/${nomineeId}`);
       await update(nomineeRef, { 
         photo: photo || null,
@@ -159,6 +235,23 @@ export const useCategories = () => {
 
   const updateCategory = async (categoryId: string, updates: Partial<Category>) => {
     try {
+      if (useLocalStorage || !database) {
+        // Use localStorage
+        const categories = localStorageHelpers.getCategories();
+        if (categories[categoryId]) {
+          categories[categoryId] = {
+            ...categories[categoryId],
+            ...updates,
+            updated_at: new Date().toISOString()
+          };
+          localStorageHelpers.setCategories(categories);
+          
+          // Trigger re-fetch
+          window.location.reload();
+        }
+        return true;
+      }
+
       const categoryRef = ref(database, `categories/${categoryId}`);
       await update(categoryRef, {
         ...updates,
