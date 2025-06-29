@@ -150,13 +150,26 @@ export const defaultCategories: Category[] = [
   }
 ];
 
-// Default nominees data
+// Sample Base64 placeholder images (you can replace these with actual photos)
+const samplePhotos = {
+  // Professional headshot placeholder - replace with actual Base64 data
+  professional: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzciIHI9IjE1IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNSA4NUMyNSA3MS43NDUyIDM1Ljc0NTIgNjEgNDkgNjFINTFDNjQuMjU0OCA2MSA3NSA3MS43NDUyIDc1IDg1VjEwMEgyNVY4NVoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+',
+  
+  // Team photo placeholder
+  team: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRUZGNkZGIi8+CjxjaXJjbGUgY3g9IjMwIiBjeT0iMzAiIHI9IjEwIiBmaWxsPSIjRkI5MjNDIi8+CjxjaXJjbGUgY3g9IjcwIiBjeT0iMzAiIHI9IjEwIiBmaWxsPSIjRkI5MjNDIi8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTUiIHI9IjEwIiBmaWxsPSIjRkI5MjNDIi8+CjxwYXRoIGQ9Ik0yMCA3NUMyMCA2OC4zNzI2IDI1LjM3MjYgNjMgMzIgNjNIMzRDNDAuNjI3NCA2MyA0NiA2OC4zNzI2IDQ2IDc1VjkwSDIwVjc1WiIgZmlsbD0iI0ZCOTIzQyIvPgo8cGF0aCBkPSJNNTQgNzVDNTQgNjguMzcyNiA1OS4zNzI2IDYzIDY2IDYzSDY4Qzc0LjYyNzQgNjMgODAgNjguMzcyNiA4MCA3NVY5MEg1NFY3NVoiIGZpbGw9IiNGQjkyM0MiLz4KPHBhdGggZD0iTTM3IDkwQzM3IDgzLjM3MjYgNDIuMzcyNiA3OCA0OSA3OEg1MUM1Ny42Mjc0IDc4IDYzIDgzLjM3MjYgNjMgOTBWMTAwSDM3VjkwWiIgZmlsbD0iI0ZCOTIzQyIvPgo8L3N2Zz4=',
+  
+  // Organization logo placeholder
+  organization: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRkVGQ0U4Ii8+CjxyZWN0IHg9IjIwIiB5PSI0MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRkFDQzE1Ii8+CjxyZWN0IHg9IjMwIiB5PSIyMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjRkFDQzE1Ii8+CjxyZWN0IHg9IjQ1IiB5PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjRkFDQzE1Ii8+Cjwvc3ZnPg=='
+};
+
+// Default nominees data with embedded Base64 photos
 export const defaultNominees: Nominee[] = [
   // Execution Excellence Award
   {
     id: 'exec-1',
     categoryId: 'execution-excellence',
     name: 'KALISA Danny',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -164,6 +177,7 @@ export const defaultNominees: Nominee[] = [
     id: 'exec-2',
     categoryId: 'execution-excellence',
     name: 'Ornella TUZA',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -171,6 +185,7 @@ export const defaultNominees: Nominee[] = [
     id: 'exec-3',
     categoryId: 'execution-excellence',
     name: 'Emma Victor',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -178,6 +193,7 @@ export const defaultNominees: Nominee[] = [
     id: 'exec-4',
     categoryId: 'execution-excellence',
     name: 'Lucas SHEMA',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -187,6 +203,7 @@ export const defaultNominees: Nominee[] = [
     id: 'coord-1',
     categoryId: 'best-coordinator',
     name: 'Ornella TUZA',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -194,6 +211,7 @@ export const defaultNominees: Nominee[] = [
     id: 'coord-2',
     categoryId: 'best-coordinator',
     name: 'KALISA Danny',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -201,6 +219,7 @@ export const defaultNominees: Nominee[] = [
     id: 'coord-3',
     categoryId: 'best-coordinator',
     name: 'Angelo URUKUNDO',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -210,6 +229,7 @@ export const defaultNominees: Nominee[] = [
     id: 'venue-1',
     categoryId: 'top-venue',
     name: 'New Life High School',
+    photo: samplePhotos.organization, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -217,6 +237,7 @@ export const defaultNominees: Nominee[] = [
     id: 'venue-2',
     categoryId: 'top-venue',
     name: 'Hope Haven',
+    photo: samplePhotos.organization, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -224,6 +245,7 @@ export const defaultNominees: Nominee[] = [
     id: 'venue-3',
     categoryId: 'top-venue',
     name: 'Gashora Girls Academy',
+    photo: samplePhotos.organization, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -233,6 +255,7 @@ export const defaultNominees: Nominee[] = [
     id: 'vol-1',
     categoryId: 'volunteer-intake',
     name: 'iVolunteer \'25',
+    photo: samplePhotos.team, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -240,6 +263,7 @@ export const defaultNominees: Nominee[] = [
     id: 'vol-2',
     categoryId: 'volunteer-intake',
     name: 'iVolunteer \'24',
+    photo: samplePhotos.team, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -247,6 +271,7 @@ export const defaultNominees: Nominee[] = [
     id: 'vol-3',
     categoryId: 'volunteer-intake',
     name: 'iVolunteer \'23',
+    photo: samplePhotos.team, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -254,6 +279,7 @@ export const defaultNominees: Nominee[] = [
     id: 'vol-4',
     categoryId: 'volunteer-intake',
     name: 'iVolunteer \'22',
+    photo: samplePhotos.team, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -263,6 +289,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-1',
     categoryId: 'mentor-decade',
     name: 'Brenna AKARABO',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -270,6 +297,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-2',
     categoryId: 'mentor-decade',
     name: 'Shamila KAREMA',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -277,6 +305,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-3',
     categoryId: 'mentor-decade',
     name: 'Emma Victor',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -284,6 +313,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-4',
     categoryId: 'mentor-decade',
     name: 'Ruth JURU',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -291,6 +321,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-5',
     categoryId: 'mentor-decade',
     name: 'Queen KABANDANA',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -298,6 +329,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-6',
     categoryId: 'mentor-decade',
     name: 'Lucas SHEMA',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -305,6 +337,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-7',
     categoryId: 'mentor-decade',
     name: 'Bonfils RUKUNDO',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -312,6 +345,7 @@ export const defaultNominees: Nominee[] = [
     id: 'mentor-8',
     categoryId: 'mentor-decade',
     name: 'Joana BYUMVUHORE',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -365,6 +399,7 @@ export const defaultNominees: Nominee[] = [
     id: 'partner-1',
     categoryId: 'partners-spotlight',
     name: 'BK Foundation',
+    photo: samplePhotos.organization, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -372,6 +407,7 @@ export const defaultNominees: Nominee[] = [
     id: 'partner-2',
     categoryId: 'partners-spotlight',
     name: 'Mastercard Foundation',
+    photo: samplePhotos.organization, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -379,6 +415,7 @@ export const defaultNominees: Nominee[] = [
     id: 'partner-3',
     categoryId: 'partners-spotlight',
     name: 'JMU',
+    photo: samplePhotos.organization, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -386,6 +423,7 @@ export const defaultNominees: Nominee[] = [
     id: 'partner-4',
     categoryId: 'partners-spotlight',
     name: 'ALX',
+    photo: samplePhotos.organization, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -395,6 +433,7 @@ export const defaultNominees: Nominee[] = [
     id: 'face-1',
     categoryId: 'face-dreamers',
     name: 'Kalisa Deborah',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -402,6 +441,7 @@ export const defaultNominees: Nominee[] = [
     id: 'face-2',
     categoryId: 'face-dreamers',
     name: 'Ruzindana Kessy',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -409,6 +449,7 @@ export const defaultNominees: Nominee[] = [
     id: 'face-3',
     categoryId: 'face-dreamers',
     name: 'Akarabo Katsey',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -418,6 +459,7 @@ export const defaultNominees: Nominee[] = [
     id: 'hype-1',
     categoryId: 'hype-maker',
     name: 'Kendy',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -425,6 +467,7 @@ export const defaultNominees: Nominee[] = [
     id: 'hype-2',
     categoryId: 'hype-maker',
     name: 'La Tasha',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -432,6 +475,7 @@ export const defaultNominees: Nominee[] = [
     id: 'hype-3',
     categoryId: 'hype-maker',
     name: 'Abi',
+    photo: samplePhotos.professional, // Replace with actual Base64 photo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
@@ -514,3 +558,46 @@ export const uploadPhoto = (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
+
+// Helper function to convert image file to Base64 (for development use)
+export const convertImageToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64String = reader.result as string;
+      console.log(`Base64 for ${file.name}:`);
+      console.log(base64String);
+      resolve(base64String);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+// Instructions for adding real photos:
+/*
+TO ADD REAL PHOTOS:
+
+1. Convert your images to Base64:
+   - Use an online converter like https://base64.guru/converter/encode/image
+   - Or use the convertImageToBase64 function above in the browser console
+   - Or use this command line: `base64 -i your-image.jpg`
+
+2. Replace the placeholder values in the samplePhotos object above with your actual Base64 strings
+
+3. Update the photo property for each nominee with the appropriate Base64 string
+
+Example:
+{
+  id: 'exec-1',
+  categoryId: 'execution-excellence',
+  name: 'KALISA Danny',
+  photo: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...', // Your actual Base64 string here
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+}
+
+4. The photos will then be embedded in your application and available globally when deployed
+
+Note: Keep file sizes reasonable (under 100KB per image when possible) to avoid large bundle sizes.
+*/
