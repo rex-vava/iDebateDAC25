@@ -17,6 +17,7 @@ export const useCategories = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
+      setError(null);
       
       // Fetch categories with their nominees
       const { data: categoriesData, error: categoriesError } = await supabase
@@ -31,7 +32,10 @@ export const useCategories = () => {
         `)
         .order('created_at');
 
-      if (categoriesError) throw categoriesError;
+      if (categoriesError) {
+        console.error('Supabase query error:', categoriesError);
+        throw new Error(`Database error: ${categoriesError.message}`);
+      }
 
       const formattedCategories = categoriesData?.map(cat => ({
         ...cat,
@@ -39,10 +43,22 @@ export const useCategories = () => {
       })) || [];
 
       setCategories(formattedCategories);
-      setError(null);
     } catch (err) {
       console.error('Error fetching categories:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch categories');
+      
+      let errorMessage = 'Failed to fetch categories';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+          errorMessage = 'Unable to connect to database. Please check your Supabase configuration and ensure your project is set up correctly.';
+        } else if (err.message.includes('Supabase is not properly configured')) {
+          errorMessage = err.message;
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -51,23 +67,29 @@ export const useCategories = () => {
   useEffect(() => {
     fetchCategories();
 
-    // Set up real-time subscriptions
-    const categoriesSubscription = supabase
-      .channel('categories-changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'categories' },
-        () => fetchCategories()
-      )
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'nominees' },
-        () => fetchCategories()
-      )
-      .subscribe();
+    // Only set up subscriptions if we successfully connected
+    let categoriesSubscription: any = null;
+    
+    if (!error) {
+      categoriesSubscription = supabase
+        .channel('categories-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'categories' },
+          () => fetchCategories()
+        )
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'nominees' },
+          () => fetchCategories()
+        )
+        .subscribe();
+    }
 
     return () => {
-      categoriesSubscription.unsubscribe();
+      if (categoriesSubscription) {
+        categoriesSubscription.unsubscribe();
+      }
     };
-  }, []);
+  }, [error]);
 
   const addNominee = async (categoryId: string, nominee: { name: string; photo?: string }) => {
     try {

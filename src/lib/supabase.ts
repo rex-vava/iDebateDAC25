@@ -3,8 +3,26 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.');
+// Check for placeholder values
+const isPlaceholderUrl = !supabaseUrl || supabaseUrl.includes('your-project-ref') || supabaseUrl === 'https://your-project-ref.supabase.co';
+const isPlaceholderKey = !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here';
+
+if (!supabaseUrl || !supabaseAnonKey || isPlaceholderUrl || isPlaceholderKey) {
+  console.error('Supabase configuration error:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    isPlaceholderUrl,
+    isPlaceholderKey,
+    currentUrl: supabaseUrl
+  });
+  
+  throw new Error(
+    'Supabase is not properly configured. Please:\n' +
+    '1. Create a Supabase project at https://supabase.com\n' +
+    '2. Get your project URL and anon key from Settings > API\n' +
+    '3. Update the .env file with your actual values\n' +
+    '4. Click "Connect to Supabase" button in the top right if available'
+  );
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
