@@ -793,12 +793,11 @@ export const STORAGE_KEYS = {
 
 // Initialize local storage with default data
 export const initializeLocalData = () => {
-  if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(defaultCategories));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.NOMINEES)) {
-    localStorage.setItem(STORAGE_KEYS.NOMINEES, JSON.stringify(defaultNominees));
-  }
+  // Always refresh with latest data to ensure all nominees are present
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(defaultCategories));
+  localStorage.setItem(STORAGE_KEYS.NOMINEES, JSON.stringify(defaultNominees));
+  
+  // Only initialize votes if they don't exist
   if (!localStorage.getItem(STORAGE_KEYS.VOTES)) {
     localStorage.setItem(STORAGE_KEYS.VOTES, JSON.stringify([]));
   }
