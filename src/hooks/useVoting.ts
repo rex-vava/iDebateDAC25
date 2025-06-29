@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, getVoterId } from '../lib/supabase';
+import { database, getVoterId, Vote } from '../lib/firebase';
+import { ref, onValue, off, set, push, update } from 'firebase/database';
 
 interface VoteStats {
   [categoryId: string]: {
@@ -25,111 +26,99 @@ export const useVoting = () => {
 
   const voterId = getVoterId();
 
-  const fetchVoteData = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch all votes with nominee information
-      const { data: votesData, error: votesError } = await supabase
-        .from('votes')
-        .select(`
-          *,
-          nominees (
-            id,
-            name
-          )
-        `);
-
-      if (votesError) throw votesError;
-
-      // Process vote statistics
-      const stats: VoteStats = {};
-      const userVotesData: UserVotes = {};
-
-      votesData?.forEach(vote => {
-        const { category_id, nominee_id, voter_id, nominees } = vote;
-        const nomineeName = nominees?.name || 'Unknown';
-
-        // Build vote statistics
-        if (!stats[category_id]) {
-          stats[category_id] = {};
-        }
-        if (!stats[category_id][nominee_id]) {
-          stats[category_id][nominee_id] = {
-            count: 0,
-            nomineeName
-          };
-        }
-        stats[category_id][nominee_id].count++;
-
-        // Track current user's votes
-        if (voter_id === voterId) {
-          userVotesData[category_id] = {
-            nomineeId: nominee_id,
-            nomineeName
-          };
-        }
-      });
-
-      setVoteStats(stats);
-      setUserVotes(userVotesData);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching vote data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch vote data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchVoteData();
+    const votesRef = ref(database, 'votes');
+    
+    const unsubscribe = onValue(votesRef, (snapshot) => {
+      try {
+        const votesData = snapshot.exists() ? snapshot.val() : {};
+        
+        // Process vote statistics
+        const stats: VoteStats = {};
+        const userVotesData: UserVotes = {};
 
-    // Set up real-time subscription for votes - instant updates for all users
-    const votesSubscription = supabase
-      .channel('votes-changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'votes' },
-        (payload) => {
-          console.log('Votes updated:', payload);
-          fetchVoteData();
-        }
-      )
-      .subscribe();
+        Object.values(votesData as { [key: string]: Vote }).forEach((vote) => {
+          const { category_id, nominee_id, voter_id, nominee_name } = vote;
+
+          // Build vote statistics
+          if (!stats[category_id]) {
+            stats[category_id] = {};
+          }
+          if (!stats[category_id][nominee_id]) {
+            stats[category_id][nominee_id] = {
+              count: 0,
+              nomineeName: nominee_name
+            };
+          }
+          stats[category_id][nominee_id].count++;
+
+          // Track current user's votes
+          if (voter_id === voterId) {
+            userVotesData[category_id] = {
+              nomineeId: nominee_id,
+              nomineeName: nominee_name
+            };
+          }
+        });
+
+        setVoteStats(stats);
+        setUserVotes(userVotesData);
+        setError(null);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error processing vote data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to process vote data');
+        setLoading(false);
+      }
+    });
 
     return () => {
-      votesSubscription.unsubscribe();
+      off(votesRef);
     };
   }, [voterId]);
 
   const vote = async (categoryId: string, nomineeId: string, nomineeName: string) => {
     try {
+      const votesRef = ref(database, 'votes');
+      
       // Check if user already voted in this category
       const existingVote = userVotes[categoryId];
       
       if (existingVote) {
-        // Update existing vote
-        const { error } = await supabase
-          .from('votes')
-          .update({ nominee_id: nomineeId })
-          .eq('category_id', categoryId)
-          .eq('voter_id', voterId);
-
-        if (error) throw error;
+        // Find and update existing vote
+        const snapshot = await new Promise<any>((resolve) => {
+          onValue(votesRef, resolve, { onlyOnce: true });
+        });
+        
+        if (snapshot.exists()) {
+          const votesData = snapshot.val();
+          const existingVoteKey = Object.keys(votesData).find(key => 
+            votesData[key].category_id === categoryId && 
+            votesData[key].voter_id === voterId
+          );
+          
+          if (existingVoteKey) {
+            const voteRef = ref(database, `votes/${existingVoteKey}`);
+            await update(voteRef, {
+              nominee_id: nomineeId,
+              nominee_name: nomineeName,
+              updated_at: new Date().toISOString()
+            });
+          }
+        }
       } else {
         // Insert new vote
-        const { error } = await supabase
-          .from('votes')
-          .insert({
-            category_id: categoryId,
-            nominee_id: nomineeId,
-            voter_id: voterId
-          });
-
-        if (error) throw error;
+        const newVoteRef = push(votesRef);
+        await set(newVoteRef, {
+          id: newVoteRef.key,
+          category_id: categoryId,
+          nominee_id: nomineeId,
+          nominee_name: nomineeName,
+          voter_id: voterId,
+          created_at: new Date().toISOString()
+        });
       }
 
-      // Real-time subscription will automatically update the UI
       return true;
     } catch (err) {
       console.error('Error voting:', err);
@@ -170,6 +159,6 @@ export const useVoting = () => {
     userVotes,
     loading,
     error,
-    refetch: fetchVoteData
+    refetch: () => {} // Not needed with real-time updates
   };
 };
