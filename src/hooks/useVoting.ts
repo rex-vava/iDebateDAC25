@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
-import { database, getVoterId, Vote, localStorageHelpers, useLocalStorage } from '../lib/firebase';
-import { ref, onValue, off, set, push, update } from 'firebase/database';
+import { 
+  Vote, 
+  getVoterId, 
+  getFromStorage, 
+  setToStorage, 
+  STORAGE_KEYS 
+} from '../data/localData';
 
 interface VoteStats {
   [categoryId: string]: {
@@ -26,187 +31,91 @@ export const useVoting = () => {
 
   const voterId = getVoterId();
 
-  useEffect(() => {
-    const fetchVoteData = () => {
-      try {
-        if (useLocalStorage || !database) {
-          // Use localStorage fallback
-          const votesData = localStorageHelpers.getVotes();
-          
-          // Process vote statistics
-          const stats: VoteStats = {};
-          const userVotesData: UserVotes = {};
+  const fetchVoteData = async () => {
+    try {
+      setLoading(true);
 
-          Object.values(votesData).forEach((vote) => {
-            const { category_id, nominee_id, voter_id, nominee_name } = vote;
+      // Get votes and nominees from local storage
+      const votes: Vote[] = getFromStorage(STORAGE_KEYS.VOTES, []);
+      const nominees = getFromStorage(STORAGE_KEYS.NOMINEES, []);
 
-            // Build vote statistics
-            if (!stats[category_id]) {
-              stats[category_id] = {};
-            }
-            if (!stats[category_id][nominee_id]) {
-              stats[category_id][nominee_id] = {
-                count: 0,
-                nomineeName: nominee_name
-              };
-            }
-            stats[category_id][nominee_id].count++;
+      // Process vote statistics
+      const stats: VoteStats = {};
+      const userVotesData: UserVotes = {};
 
-            // Track current user's votes
-            if (voter_id === voterId) {
-              userVotesData[category_id] = {
-                nomineeId: nominee_id,
-                nomineeName: nominee_name
-              };
-            }
-          });
+      votes.forEach(vote => {
+        const { categoryId, nomineeId, voterId: voteVoterId } = vote;
+        const nominee = nominees.find((n: any) => n.id === nomineeId);
+        const nomineeName = nominee?.name || 'Unknown';
 
-          setVoteStats(stats);
-          setUserVotes(userVotesData);
-          setLoading(false);
-          return;
+        // Build vote statistics
+        if (!stats[categoryId]) {
+          stats[categoryId] = {};
         }
+        if (!stats[categoryId][nomineeId]) {
+          stats[categoryId][nomineeId] = {
+            count: 0,
+            nomineeName
+          };
+        }
+        stats[categoryId][nomineeId].count++;
 
-        // Use Firebase
-        const votesRef = ref(database, 'votes');
-        
-        const unsubscribe = onValue(votesRef, (snapshot) => {
-          try {
-            const votesData = snapshot.exists() ? snapshot.val() : {};
-            
-            // Process vote statistics
-            const stats: VoteStats = {};
-            const userVotesData: UserVotes = {};
+        // Track current user's votes
+        if (voteVoterId === voterId) {
+          userVotesData[categoryId] = {
+            nomineeId,
+            nomineeName
+          };
+        }
+      });
 
-            Object.values(votesData as { [key: string]: Vote }).forEach((vote) => {
-              const { category_id, nominee_id, voter_id, nominee_name } = vote;
+      setVoteStats(stats);
+      setUserVotes(userVotesData);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching vote data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch vote data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-              // Build vote statistics
-              if (!stats[category_id]) {
-                stats[category_id] = {};
-              }
-              if (!stats[category_id][nominee_id]) {
-                stats[category_id][nominee_id] = {
-                  count: 0,
-                  nomineeName: nominee_name
-                };
-              }
-              stats[category_id][nominee_id].count++;
-
-              // Track current user's votes
-              if (voter_id === voterId) {
-                userVotesData[category_id] = {
-                  nomineeId: nominee_id,
-                  nomineeName: nominee_name
-                };
-              }
-            });
-
-            setVoteStats(stats);
-            setUserVotes(userVotesData);
-            setError(null);
-            setLoading(false);
-          } catch (err) {
-            console.error('Error processing vote data:', err);
-            setError(err instanceof Error ? err.message : 'Failed to process vote data');
-            setLoading(false);
-          }
-        });
-
-        return () => {
-          off(votesRef);
-        };
-      } catch (err) {
-        console.error('Error setting up vote listener:', err);
-        setError(err instanceof Error ? err.message : 'Failed to setup vote tracking');
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchVoteData();
   }, [voterId]);
 
   const vote = async (categoryId: string, nomineeId: string, nomineeName: string) => {
     try {
-      if (useLocalStorage || !database) {
-        // Use localStorage
-        const votes = localStorageHelpers.getVotes();
-        
-        // Check if user already voted in this category
-        const existingVoteKey = Object.keys(votes).find(key => 
-          votes[key].category_id === categoryId && 
-          votes[key].voter_id === voterId
-        );
-        
-        if (existingVoteKey) {
-          // Update existing vote
-          votes[existingVoteKey] = {
-            ...votes[existingVoteKey],
-            nominee_id: nomineeId,
-            nominee_name: nomineeName,
-            updated_at: new Date().toISOString()
-          };
-        } else {
-          // Insert new vote
-          const voteId = `vote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          votes[voteId] = {
-            id: voteId,
-            category_id: categoryId,
-            nominee_id: nomineeId,
-            nominee_name: nomineeName,
-            voter_id: voterId,
-            created_at: new Date().toISOString()
-          };
-        }
-        
-        localStorageHelpers.setVotes(votes);
-        
-        // Trigger re-fetch
-        window.location.reload();
-        return true;
-      }
-
-      // Use Firebase
-      const votesRef = ref(database, 'votes');
+      const votes: Vote[] = getFromStorage(STORAGE_KEYS.VOTES, []);
       
       // Check if user already voted in this category
-      const existingVote = userVotes[categoryId];
+      const existingVoteIndex = votes.findIndex(
+        vote => vote.categoryId === categoryId && vote.voterId === voterId
+      );
       
-      if (existingVote) {
-        // Find and update existing vote
-        const snapshot = await new Promise<any>((resolve) => {
-          onValue(votesRef, resolve, { onlyOnce: true });
-        });
-        
-        if (snapshot.exists()) {
-          const votesData = snapshot.val();
-          const existingVoteKey = Object.keys(votesData).find(key => 
-            votesData[key].category_id === categoryId && 
-            votesData[key].voter_id === voterId
-          );
-          
-          if (existingVoteKey) {
-            const voteRef = ref(database, `votes/${existingVoteKey}`);
-            await update(voteRef, {
-              nominee_id: nomineeId,
-              nominee_name: nomineeName,
-              updated_at: new Date().toISOString()
-            });
-          }
-        }
+      if (existingVoteIndex >= 0) {
+        // Update existing vote
+        votes[existingVoteIndex] = {
+          ...votes[existingVoteIndex],
+          nomineeId,
+          createdAt: new Date().toISOString()
+        };
       } else {
-        // Insert new vote
-        const newVoteRef = push(votesRef);
-        await set(newVoteRef, {
-          id: newVoteRef.key,
-          category_id: categoryId,
-          nominee_id: nomineeId,
-          nominee_name: nomineeName,
-          voter_id: voterId,
-          created_at: new Date().toISOString()
-        });
+        // Add new vote
+        const newVote: Vote = {
+          id: `vote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          categoryId,
+          nomineeId,
+          voterId,
+          createdAt: new Date().toISOString()
+        };
+        votes.push(newVote);
       }
 
+      setToStorage(STORAGE_KEYS.VOTES, votes);
+      
+      // Refresh vote data
+      await fetchVoteData();
       return true;
     } catch (err) {
       console.error('Error voting:', err);
@@ -247,6 +156,6 @@ export const useVoting = () => {
     userVotes,
     loading,
     error,
-    refetch: () => {} // Not needed with real-time updates
+    refetch: fetchVoteData
   };
 };

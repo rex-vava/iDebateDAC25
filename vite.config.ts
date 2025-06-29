@@ -13,7 +13,6 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           icons: ['lucide-react'],
-          firebase: ['firebase/app', 'firebase/database'],
         },
       },
     },
@@ -29,9 +28,6 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
-    // Fix MIME type issues for deployment
-    assetsDir: 'assets',
-    outDir: 'dist',
   },
   
   // Development server optimizations
@@ -46,18 +42,20 @@ export default defineConfig({
   
   // Dependency optimization
   optimizeDeps: {
-    include: ['react', 'react-dom', 'lucide-react', 'firebase/app', 'firebase/database'],
+    include: ['react', 'react-dom', 'lucide-react'],
     exclude: [],
   },
   
   // CSS optimization
   css: {
     devSourcemap: true,
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "src/styles/variables.scss";`,
+      },
+    },
   },
   
   // Asset optimization
   assetsInclude: ['**/*.woff2', '**/*.woff'],
-  
-  // Fix deployment issues
-  base: './',
 });

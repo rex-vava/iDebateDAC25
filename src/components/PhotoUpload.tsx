@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, User, Camera, Check, Wifi } from 'lucide-react';
+import { Upload, X, User, Camera, Check } from 'lucide-react';
+import { uploadPhoto } from '../data/localData';
 
 interface PhotoUploadProps {
   currentPhoto?: string;
@@ -18,33 +19,16 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      alert('File size must be less than 5MB');
-      return;
-    }
-
     setIsUploading(true);
     setUploadSuccess(false);
     
     try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        onPhotoChange(result);
-        setUploadSuccess(true);
-        
-        // Show success message briefly
-        setTimeout(() => setUploadSuccess(false), 3000);
-      };
-      reader.onerror = () => {
-        alert('Error reading file');
-      };
-      reader.readAsDataURL(file);
+      const photoDataUrl = await uploadPhoto(file);
+      onPhotoChange(photoDataUrl);
+      setUploadSuccess(true);
+      
+      // Show success message briefly
+      setTimeout(() => setUploadSuccess(false), 2000);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Error uploading photo');
     } finally {
@@ -145,7 +129,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
           {isUploading ? (
             <div className="flex flex-col items-center">
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-              <p className="text-sm text-gray-600">Uploading to global database...</p>
+              <p className="text-sm text-gray-600">Uploading photo...</p>
               <p className="text-xs text-gray-500 mt-1">Processing image data</p>
             </div>
           ) : (
@@ -166,9 +150,8 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
                 Max 5MB • JPG, PNG, GIF
               </p>
               <div className="mt-2 bg-green-50 border border-green-200 rounded px-2 py-1">
-                <p className="text-xs text-green-700 font-medium flex items-center gap-1">
-                  <Wifi className="w-3 h-3" />
-                  ✓ Saved to global database - visible worldwide!
+                <p className="text-xs text-green-700 font-medium">
+                  ✓ Photos stored locally - works offline!
                 </p>
               </div>
             </div>
@@ -184,9 +167,8 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
               Photo uploaded successfully!
             </span>
           </div>
-          <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-            <Wifi className="w-3 h-3" />
-            Image is now stored in the global database and visible to all users worldwide
+          <p className="text-xs text-green-600 mt-1">
+            Image is now stored locally and will be available globally
           </p>
         </div>
       )}
