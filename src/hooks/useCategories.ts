@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { 
   Category, 
   Nominee, 
-  CategoryWithNominees, 
   initializeLocalData, 
   getFromStorage, 
   setToStorage, 
   STORAGE_KEYS 
 } from '../data/localData';
+import type { CategoryWithNominees } from '../data/localData';
 
-export { CategoryWithNominees };
+export type { CategoryWithNominees };
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<CategoryWithNominees[]>([]);
