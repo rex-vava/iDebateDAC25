@@ -1,7 +1,8 @@
 import React from 'react';
-import { BarChart3, TrendingUp, Award, Users, Download } from 'lucide-react';
+import { BarChart3, TrendingUp, Award, Users, Download, Shield } from 'lucide-react';
 import { useVoting } from '../hooks/useVoting';
 import { useCategories } from '../hooks/useCategories';
+import { useAuth } from '../hooks/useAuth';
 
 interface VoteStatsPanelProps {
   showExport?: boolean;
@@ -10,6 +11,7 @@ interface VoteStatsPanelProps {
 const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) => {
   const { voteStats, getTotalCategoryVotes } = useVoting();
   const { categories } = useCategories();
+  const { isAuthenticated } = useAuth();
 
   const exportData = () => {
     const data = {
@@ -66,7 +68,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
           <h4 className="text-xl font-semibold text-gray-900">Live Vote Statistics</h4>
           <p className="text-gray-600">Real-time voting analytics</p>
         </div>
-        {showExport && (
+        {showExport && isAuthenticated && (
           <button
             onClick={exportData}
             className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
@@ -140,6 +142,12 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
         <h5 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <BarChart3 className="w-5 h-5 text-blue-500" />
           Voting Categories & Results
+          {isAuthenticated && (
+            <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full flex items-center gap-1">
+              <Shield className="w-3 h-3" />
+              Admin View
+            </span>
+          )}
         </h5>
         <div className="grid gap-6">
           {getVotingCategories().map((category) => {
@@ -164,7 +172,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                       </span>
                     </div>
                   </div>
-                  {topNominee && (
+                  {topNominee && isAuthenticated && (
                     <div className="text-right bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-lg border border-orange-200">
                       <p className="text-sm text-gray-600 mb-1">🏆 Leading:</p>
                       <p className="font-semibold text-orange-700">{topNominee.nominee}</p>
@@ -173,7 +181,7 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                   )}
                 </div>
                 
-                {totalVotes > 0 && category.nominees.length > 0 ? (
+                {isAuthenticated && totalVotes > 0 && category.nominees.length > 0 ? (
                   <div className="space-y-3">
                     {category.nominees.map((nominee) => {
                       const nomineeStats = voteStats[category.id]?.[nominee.id];
@@ -214,6 +222,18 @@ const VoteStatsPanel: React.FC<VoteStatsPanelProps> = ({ showExport = false }) =
                         </div>
                       );
                     })}
+                  </div>
+                ) : !isAuthenticated ? (
+                  <div className="text-center py-6">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-blue-700 font-medium">Detailed Results Available to Admin Only</p>
+                      <p className="text-blue-600 text-sm mt-1">
+                        {totalVotes > 0 
+                          ? `${totalVotes} votes have been cast in this category`
+                          : 'No votes cast yet - be the first to vote!'
+                        }
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-6">

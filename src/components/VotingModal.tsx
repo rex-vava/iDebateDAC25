@@ -120,7 +120,7 @@ const VotingModal: React.FC<VotingModalProps> = ({
               {totalVotes > 0 && (
                 <div className="flex items-center mt-2 text-sm text-gray-500">
                   <BarChart3 className="w-4 h-4 mr-1" />
-                  <span>{totalVotes} total votes cast</span>
+                  <span>{totalVotes} total votes cast globally</span>
                 </div>
               )}
             </div>
@@ -140,9 +140,16 @@ const VotingModal: React.FC<VotingModalProps> = ({
               <h4 className="text-xl font-semibold text-gray-900 mb-2">
                 Vote Successfully Submitted!
               </h4>
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-4">
                 You voted for <span className="font-medium">{userVote}</span>
               </p>
+              {totalVotes > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                  <p className="text-blue-700 text-sm">
+                    <strong>{totalVotes}</strong> people have voted in this category globally
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -152,7 +159,6 @@ const VotingModal: React.FC<VotingModalProps> = ({
               <div className="grid gap-4">
                 {category.nominees.map((nominee, index) => {
                   const voteCount = getVoteCount(category.id, nominee.id);
-                  const votePercentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
                   
                   return (
                     <label
@@ -206,13 +212,8 @@ const VotingModal: React.FC<VotingModalProps> = ({
                             </div>
                           </div>
                           
-                          {/* Vote Count & Selection Indicator */}
+                          {/* Selection Indicator */}
                           <div className="flex-shrink-0 text-right">
-                            {voteCount > 0 && (
-                              <div className="text-sm text-gray-600 mb-1">
-                                {voteCount} {voteCount === 1 ? 'vote' : 'votes'} ({votePercentage.toFixed(1)}%)
-                              </div>
-                            )}
                             {selectedNomineeId === nominee.id && (
                               <div 
                                 className="w-6 h-6 rounded-full flex items-center justify-center"
@@ -223,19 +224,6 @@ const VotingModal: React.FC<VotingModalProps> = ({
                             )}
                           </div>
                         </div>
-                        
-                        {/* Vote Progress Bar */}
-                        {totalVotes > 0 && (
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="h-2 rounded-full transition-all duration-500"
-                              style={{ 
-                                width: `${votePercentage}%`,
-                                background: 'linear-gradient(to right, #eb754f, #f4be68)'
-                              }}
-                            ></div>
-                          </div>
-                        )}
                       </div>
                     </label>
                   );
